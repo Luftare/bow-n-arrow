@@ -39,10 +39,11 @@ const renderPreferences = () => {
 
 const renderUpgrades = (state) => {
   const labels = {
+    lootBonus: 'Loot Bonus',
+    tripleLootChance: 'Triple Loot Chance',
     damage: 'Damage',
     range: 'Range',
     loadTicks: 'Load Time',
-    lootBonus: 'Loot Bonus',
     critChance: 'Crit Chance',
     critMultiplier: 'Crit Multiplier',
     freezeChance: 'Freeze Chance',
@@ -55,6 +56,7 @@ const renderUpgrades = (state) => {
 
   const formats = {
     lootBonus: (value) => value,
+    tripleLootChance: percentage,
     damage: (value) => value,
     loadTicks: (value) => value,
     range: (value) => value + 'm',

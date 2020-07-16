@@ -20,7 +20,8 @@ const get = (key, levelAdjust = 0) =>
   upgradeValues[key](game.state.upgrades[key] + levelAdjust);
 
 const upgradeValues = {
-  lootBonus: (level) => 1 + Math.floor(level ** 2),
+  lootBonus: (level) => 1 + Math.floor(level ** 2.1),
+  tripleLootChance: (level) => 0.04 + level * 0.02,
   damage: (level) => Math.floor(10 + level ** 1.5),
   loadTicks: (level) => 100 - level * 2,
   range: (level) => 150 + level * 2,
@@ -31,6 +32,7 @@ const upgradeValues = {
   pierceChance: (level) => 0.0 + level * 0.02,
 };
 
+const waveToWaveGapTicks = (wave) => 100 - wave * 5;
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
 const waveToIsBoss = (wave) => wave % 4 === 0;
 const waveToEnemyHp = (wave) => 15 + wave * 0.5;
@@ -42,7 +44,7 @@ const waveToTickCount = (wave) => {
   const lastEnemyDistanceToPlayer = lastEnemyX - PLAYER_X;
   return lastEnemyDistanceToPlayer / Math.abs(ENEMY_VELOCITY);
 };
-const upgradeCost = (currentLevel) => 2 ** currentLevel;
+const upgradeCost = (currentLevel) => Math.floor(2 ** currentLevel);
 
 const isAlive = ({ hp }) => hp > 0;
 
@@ -108,7 +110,19 @@ const updatePlayer = (state) => {
 
 const handleEnemyKill = (state, enemy) => {
   const bossMultiplier = enemy.isBoss ? 4 : 1;
-  state.player.coins += Math.floor(get('lootBonus') * bossMultiplier);
+  const isTripled = Math.random() < get('tripleLootChance');
+  const tripler = isTripled ? 3 : 1;
+  state.player.coins += Math.floor(get('lootBonus') * bossMultiplier * tripler);
+
+  if (isTripled) {
+    DOM.displayMessage(
+      PLAYER_X - 24,
+      FLOOR_Y - PLAYER_HEIGHT,
+      'Triple!',
+      'black',
+      14
+    );
+  }
 };
 
 const updateArrow = (state) => (arrow) => {
@@ -181,7 +195,8 @@ const updateWave = () => {
   if (game.state.waveCounter <= 0) {
     game.state.wave++;
     spawnWave(game.state.wave);
-    game.state.waveCounter = waveToTickCount(game.state.wave) + WAVE_GAP_TICKS;
+    game.state.waveCounter =
+      waveToTickCount(game.state.wave) + waveToWaveGapTicks(game.state.wave);
   }
 };
 
@@ -250,6 +265,7 @@ const createState = () => ({
   arrows: [],
   upgrades: {
     lootBonus: 0,
+    tripleLootChance: 0,
     damage: 0,
     loadTicks: 0,
     range: 0,
