@@ -23,66 +23,68 @@ const renderPreferences = () => {
     
   `;
 
-  document.getElementById(NEW_GAME).addEventListener('click', initGame);
+  document.getElementById(NEW_GAME).addEventListener('click', () => {
+    game.state = createState();
+    renderUpgrades(game.state);
+  });
   timeSpeeds.forEach((value) => {
     document
       .getElementById(timeSpeedId(value))
-      .addEventListener('change', () => (preferences.timeSpeed = value));
+      .addEventListener('change', () => (game.preferences.timeSpeed = value));
   });
 };
 
-const renderUpgrades = () => {
-  const LOAD_TIME = 'load-time';
-  const LOOT_BONUS = 'loot-bonus';
-  const CRIT_CHANCE = 'crit-chance';
+const renderUpgrades = (state) => {
+  const labels = {
+    loadTicks: 'Load Time',
+    lootBonus: 'Loot Bonus',
+    critChance: 'Crit Chance',
+    critMultiplier: 'Crit Multiplier',
+  };
 
-  DOM.upgrades.container.innerHTML = `
-  <button id="${LOAD_TIME}">Load Time ${loadTicks(
-    state.upgrades.loadTime + 1
-  )} ${upgradeCost(state.upgrades.loadTime)}</button>
+  const formats = {
+    loadTicks: (value) => value,
+    lootBonus: (value) => value,
+    critChance: (value) => (value * 100).toFixed(1) + '%',
+    critMultiplier: (value) => value,
+  };
 
-  <button id="${LOOT_BONUS}">Loot Bonus ${lootBonus(
-    state.upgrades.lootBonus + 1
-  )} ${upgradeCost(state.upgrades.lootBonus)}</button>
+  const upgradeDOMElements = [];
 
-  <button id="${CRIT_CHANCE}">Crit Chance ${
-    critChance(state.upgrades.critChance + 1) * 100
-  }% ${upgradeCost(state.upgrades.critChance)}</button>
+  for (let upgrade in state.upgrades) {
+    const level = state.upgrades[upgrade];
 
-  `;
+    upgradeDOMElements.push(`
+    <div>
+    <span>${labels[upgrade]}</span>
+    <span>${formats[upgrade](upgradeValues[upgrade](level))}</span>
+    <span> --> </span>
+    <span>${formats[upgrade](upgradeValues[upgrade](level + 1))}</span>
+    <span>Cost: ${upgradeCost(level)}</span>
+    <button id="${upgrade}">Upgrade</button>
+    </div>
+    `);
+  }
 
-  DOM.upgrades.loadTime = document.getElementById(LOAD_TIME);
-  DOM.upgrades.lootBonus = document.getElementById(LOOT_BONUS);
-  DOM.upgrades.critChance = document.getElementById(CRIT_CHANCE);
+  DOM.upgrades.container.innerHTML = upgradeDOMElements.join('\n');
 
-  DOM.upgrades.loadTime.addEventListener('click', () => {
-    state.player.coins -= upgradeCost(state.upgrades.loadTime);
-    state.upgrades.loadTime++;
-    renderUpgrades(state);
-  });
-
-  DOM.upgrades.lootBonus.addEventListener('click', () => {
-    state.player.coins -= upgradeCost(state.upgrades.lootBonus);
-    state.upgrades.lootBonus++;
-    renderUpgrades(state);
-  });
-
-  DOM.upgrades.critChance.addEventListener('click', () => {
-    state.player.coins -= upgradeCost(state.upgrades.critChance);
-    state.upgrades.critChance++;
-    renderUpgrades(state);
-  });
+  for (let upgrade in state.upgrades) {
+    const level = state.upgrades[upgrade];
+    DOM.upgrades[upgrade] = document.getElementById(upgrade);
+    DOM.upgrades[upgrade].addEventListener('click', () => {
+      state.player.coins -= upgradeCost(state.upgrades[upgrade]);
+      state.upgrades[upgrade]++;
+      renderUpgrades(state);
+    });
+  }
 };
 
 const updateUpgradeAvailability = (state) => {
-  DOM.upgrades.loadTime.disabled =
-    state.player.coins < upgradeCost(state.upgrades.loadTime);
-  DOM.upgrades.lootBonus.disabled =
-    state.player.coins < upgradeCost(state.upgrades.lootBonus);
-  DOM.upgrades.critChance.disabled =
-    state.player.coins < upgradeCost(state.upgrades.critChance);
+  for (let upgrade in state.upgrades) {
+    DOM.upgrades[upgrade].disabled =
+      state.player.coins < upgradeCost(state.upgrades[upgrade]);
+  }
 };
 
-renderPreferences();
-
 boot();
+renderPreferences();

@@ -8,18 +8,23 @@ const PLAYER_X = 40;
 const PLAYER_HEIGHT = 30;
 const FLOOR_Y = 100;
 
-let preferences = {
-  timeSpeed: 1,
+const game = {
+  state: null,
+  preferences: {
+    timeSpeed: 1,
+  },
 };
 
-let state;
+const upgradeValues = {
+  loadTicks: (level) => 80 - level * 2,
+  lootBonus: (level) => level,
+  critChance: (level) => 0 + level * 0.02,
+  critMultiplier: (level) => 1.5 + level * 0.15,
+};
 
 const waveToEnemyCount = (wave) => 5;
-const waveToEnemyHp = (wave) => 20 + wave;
-const enemyCoinReward = (upgrades) => 1 + upgrades.lootBonus;
-const loadTicks = (level) => 80 - level * 2;
-const lootBonus = (level) => level;
-const critChance = (level) => 0 + level * 0.1;
+const waveToEnemyHp = (wave) => 20 + wave * 0.5;
+const enemyCoinReward = (lootBonusLevel) => 1 + lootBonusLevel;
 const waveToTickCount = (wave) => {
   const enemyCount = waveToEnemyCount(wave);
   const lastEnemyX = ENEMY_SPAWN_MIN_DISTANCE + ENEMY_SPACE * (enemyCount - 1);
@@ -63,31 +68,36 @@ const render = (canvas, state) => {
 };
 
 const updatePlayer = (state) => {
-  state.player.loadCounter -= preferences.timeSpeed;
+  state.player.loadCounter -= game.preferences.timeSpeed;
   const enemyInRange = state.enemies.some(
     ({ x }) => Math.abs(x - PLAYER_X) <= state.player.range
   );
   const isLoaded = state.player.loadCounter <= 0;
   if (isLoaded && enemyInRange) {
-    state.player.loadCounter = loadTicks(state.upgrades.loadTime);
+    state.player.loadCounter = upgradeValues.loadTicks(
+      state.upgrades.loadTicks
+    );
     shoot(state);
   }
 };
 
 const handleEnemyKill = (state, enemy) => {
-  state.player.coins += enemyCoinReward(state.upgrades);
+  state.player.coins += enemyCoinReward(state.upgrades.lootBonus);
 };
 
 const updateArrow = (state) => (arrow) => {
-  const nextX = arrow.x + ARROW_VELOCITY * preferences.timeSpeed;
-  const enemyMovement = ENEMY_VELOCITY * preferences.timeSpeed;
+  const nextX = arrow.x + ARROW_VELOCITY * game.preferences.timeSpeed;
+  const enemyMovement = ENEMY_VELOCITY * game.preferences.timeSpeed;
   const arrowStartX = arrow.x + enemyMovement;
 
   const enemy = state.enemies.find((e) => e.x >= arrowStartX && e.x < nextX);
 
   if (enemy) {
-    const isCrit = Math.random() < critChance(state.upgrades.critChance);
-    const critMultiplier = isCrit ? 2 : 1;
+    const isCrit =
+      Math.random() < upgradeValues.critChance(state.upgrades.critChance);
+    const critMultiplier = isCrit
+      ? upgradeValues.critMultiplier(state.upgrades.critMultiplier)
+      : 1;
     enemy.hp -= arrow.damage * critMultiplier;
     arrow.hp--;
 
@@ -100,7 +110,7 @@ const updateArrow = (state) => (arrow) => {
 };
 
 const updateEnemy = (state) => (enemy) => {
-  enemy.x += ENEMY_VELOCITY * preferences.timeSpeed;
+  enemy.x += ENEMY_VELOCITY * game.preferences.timeSpeed;
 };
 
 const shoot = (state) => {
@@ -108,35 +118,35 @@ const shoot = (state) => {
 };
 
 const updateWave = () => {
-  state.waveCounter -= preferences.timeSpeed;
+  game.state.waveCounter -= game.preferences.timeSpeed;
 
-  if (state.waveCounter <= 0) {
-    state.wave++;
-    spawnWave(state.wave);
-    state.waveCounter = waveToTickCount(state.wave) + WAVE_GAP_TICKS;
+  if (game.state.waveCounter <= 0) {
+    game.state.wave++;
+    spawnWave(game.state.wave);
+    game.state.waveCounter = waveToTickCount(game.state.wave) + WAVE_GAP_TICKS;
   }
 };
 
 const updateGameOver = () => {
-  state.isGameOver = state.enemies.some(({ x }) => x <= PLAYER_X);
+  game.state.isGameOver = game.state.enemies.some(({ x }) => x <= PLAYER_X);
 };
 
 const tick = () => {
-  if (state.isGameOver) return;
+  if (game.state.isGameOver) return;
 
   updateWave();
 
-  updatePlayer(state);
+  updatePlayer(game.state);
 
-  state.arrows.forEach(updateArrow(state));
-  state.enemies.forEach(updateEnemy(state));
+  game.state.arrows.forEach(updateArrow(game.state));
+  game.state.enemies.forEach(updateEnemy(game.state));
 
-  state.enemies = state.enemies.filter(isAlive);
-  state.arrows = state.arrows.filter(isAlive);
+  game.state.enemies = game.state.enemies.filter(isAlive);
+  game.state.arrows = game.state.arrows.filter(isAlive);
 
   updateGameOver();
 
-  render(DOM.game, state);
+  render(DOM.game, game.state);
 };
 
 const enemyFactory = (state, index) => ({
@@ -145,40 +155,38 @@ const enemyFactory = (state, index) => ({
 });
 
 const spawnWave = (wave) => {
-  const newEnemies = [...Array(waveToEnemyCount(state.wave))].map((_, index) =>
-    enemyFactory(state, index)
-  );
-  state.enemies = [...state.enemies, ...newEnemies];
+  const newEnemies = [
+    ...Array(waveToEnemyCount(game.state.wave)),
+  ].map((_, index) => enemyFactory(game.state, index));
+  game.state.enemies = [...game.state.enemies, ...newEnemies];
 };
 
 const loop = () => {
   requestAnimationFrame(loop);
-  tick(state);
+  tick(game.state);
 };
 
-const initGame = () => {
-  state = {
-    isGameOver: false,
-    waveCounter: 0,
-    wave: 0,
-    enemies: [],
-    arrows: [],
-    upgrades: {
-      loadTime: 0,
-      lootBonus: 0,
-      critChance: 0,
-      critMultiplier: 2,
-    },
-    player: {
-      coins: 0,
-      range: 200,
-      loadCounter: 0,
-    },
-  };
-};
+const createState = () => ({
+  isGameOver: false,
+  waveCounter: 0,
+  wave: 0,
+  enemies: [],
+  arrows: [],
+  upgrades: {
+    loadTicks: 0,
+    lootBonus: 0,
+    critChance: 0,
+    critMultiplier: 0,
+  },
+  player: {
+    coins: 0,
+    range: 200,
+    loadCounter: 0,
+  },
+});
 
 const boot = () => {
-  initGame();
-  renderUpgrades();
+  game.state = createState();
+  renderUpgrades(game.state);
   loop();
 };
