@@ -45,6 +45,7 @@ const renderUpgrades = (state) => {
     critMultiplier: 'Crit Multiplier',
     freezeChance: 'Freeze Chance',
     freezeDuration: 'Freeze Duration',
+    pierceChance: 'Pierce Chance',
   };
 
   const percentage = (value) => (value * 100).toFixed(1) + '%';
@@ -59,6 +60,7 @@ const renderUpgrades = (state) => {
     critMultiplier: decimal,
     freezeChance: percentage,
     freezeDuration: (value) => value,
+    pierceChance: percentage,
   };
 
   const upgradeDOMElements = [];

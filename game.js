@@ -19,12 +19,13 @@ const game = {
 const upgradeValues = {
   lootBonus: (level) => 1 + Math.floor(level ** 2),
   damage: (level) => 10 + level,
-  loadTicks: (level) => 80 - level * 2,
+  loadTicks: (level) => 100 - level * 2,
   range: (level) => 150 + level * 2,
   critChance: (level) => 0.04 + level * 0.02,
   critMultiplier: (level) => 1.5 + level * 0.15,
   freezeChance: (level) => 0 + level * 0.02,
   freezeDuration: (level) => 100 + level * 50,
+  pierceChance: (level) => 0.0 + level * 0.02,
 };
 
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
@@ -117,14 +118,28 @@ const updateArrow = (state) => (arrow) => {
     const isCrit =
       Math.random() <
       upgradeValues.critChance(state.upgrades.critChance) * frozenBonus;
-    if (isCrit) {
-      DOM.displayMessage(enemy.x, FLOOR_Y - PLAYER_HEIGHT, 'Crit!', 'red');
-    }
+
     const critMultiplier = isCrit
       ? upgradeValues.critMultiplier(state.upgrades.critMultiplier)
       : 1;
-    enemy.hp -= arrow.damage * critMultiplier;
-    arrow.hp--;
+    const damage = Math.floor(arrow.damage * critMultiplier);
+    enemy.hp -= damage;
+    DOM.displayMessage(
+      enemy.x,
+      FLOOR_Y - PLAYER_HEIGHT,
+      damage,
+      isCrit ? 'red' : 'black',
+      isCrit ? 14 : 12
+    );
+    const willPierce =
+      !isCrit &&
+      Math.random() < upgradeValues.pierceChance(state.upgrades.pierceChance);
+    if (willPierce) {
+      DOM.displayMessage(enemy.x, FLOOR_Y - PLAYER_HEIGHT, 'Pierce!', 'orange');
+      arrow.x = enemy.x + 0.0001;
+    } else {
+      arrow.hp--;
+    }
 
     if (enemy.hp <= 0) {
       handleEnemyKill(state, enemy);
@@ -187,7 +202,9 @@ const tick = () => {
   game.state.enemies.forEach(updateEnemy(game.state));
 
   game.state.enemies = game.state.enemies.filter(isAlive);
-  game.state.arrows = game.state.arrows.filter(isAlive);
+  game.state.arrows = game.state.arrows
+    .filter(isAlive)
+    .filter(({ x }) => x < 10000);
 
   updateGameOver();
 
@@ -228,6 +245,7 @@ const createState = () => ({
     critMultiplier: 0,
     freezeChance: 0,
     freezeDuration: 0,
+    pierceChance: 0,
   },
   player: {
     coins: 0,
