@@ -3,13 +3,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bow n Arrow</title>
+    <link rel="stylesheet" href="style.css" />
     <script defer src="DOM.js"></script>
     <script defer src="game.js"></script>
     <script defer src="controls.js"></script>
   </head>
   <body>
     <div id="stats"></div>
-    <canvas id="game"></canvas>
+    <div id="game-container">
+      <canvas id="game"></canvas>
+      <div id="game-elements-container"></div>
+    </div>
     <div id="controls">
       <div id="preferences"></div>
       <div id="upgrades"></div>

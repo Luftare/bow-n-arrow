@@ -6,6 +6,7 @@ const ENEMY_VELOCITY = -0.3;
 const ARROW_VELOCITY = 3;
 const PLAYER_X = 40;
 const PLAYER_HEIGHT = 30;
+const PLAYER_WIDTH = 15;
 const FLOOR_Y = 100;
 
 const game = {
@@ -16,15 +17,18 @@ const game = {
 };
 
 const upgradeValues = {
+  lootBonus: (level) => 1 + Math.floor(level ** 2),
+  damage: (level) => 10 + level,
   loadTicks: (level) => 80 - level * 2,
-  lootBonus: (level) => level,
-  critChance: (level) => 0 + level * 0.02,
+  range: (level) => 150 + level * 2,
+  critChance: (level) => 0.04 + level * 0.02,
   critMultiplier: (level) => 1.5 + level * 0.15,
+  freezeChance: (level) => 0 + level * 0.02,
+  freezeDuration: (level) => 100 + level * 50,
 };
 
-const waveToEnemyCount = (wave) => 5;
-const waveToEnemyHp = (wave) => 20 + wave * 0.5;
-const enemyCoinReward = (lootBonusLevel) => 1 + lootBonusLevel;
+const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
+const waveToEnemyHp = (wave) => 15 + wave * 0.5;
 const waveToTickCount = (wave) => {
   const enemyCount = waveToEnemyCount(wave);
   const lastEnemyX = ENEMY_SPAWN_MIN_DISTANCE + ENEMY_SPACE * (enemyCount - 1);
@@ -42,20 +46,34 @@ const renderGame = (canvas, state) => {
 
   ctx.fillStyle = 'green';
   ctx.fillRect(0, FLOOR_Y, DOM.game.width, DOM.game.height - FLOOR_Y);
-  ctx.fillStyle = 'red';
+
+  ctx.fillStyle = 'lightgray';
   ctx.fillRect(
-    PLAYER_X + state.player.range,
+    PLAYER_X + upgradeValues.range(state.upgrades.range),
     FLOOR_Y,
     -2,
     DOM.game.height - FLOOR_Y
   );
 
   ctx.fillStyle = 'black';
-  ctx.fillRect(PLAYER_X, FLOOR_Y, -15, -PLAYER_HEIGHT);
+  ctx.fillRect(PLAYER_X, FLOOR_Y, -PLAYER_WIDTH, -PLAYER_HEIGHT);
 
-  state.enemies.forEach(({ x }) =>
-    ctx.fillRect(x, FLOOR_Y, 15, -PLAYER_HEIGHT)
-  );
+  const maxLoadTicks = upgradeValues.loadTicks(state.upgrades.loadTicks);
+  const isAiming = maxLoadTicks - state.player.loadCounter > 15;
+  if (isAiming) {
+    ctx.fillRect(PLAYER_X, FLOOR_Y - 10, -PLAYER_WIDTH - 4, -6);
+  }
+
+  state.enemies.forEach(({ x, hp, maxHp, freeze }) => {
+    ctx.fillStyle = freeze > 0 ? 'blue' : 'darkgreen';
+    ctx.fillRect(x, FLOOR_Y, PLAYER_WIDTH, -PLAYER_HEIGHT);
+
+    ctx.fillStyle = 'lightgreen';
+    const hpWidth = (PLAYER_WIDTH * hp) / maxHp;
+    ctx.fillRect(x, FLOOR_Y - PLAYER_HEIGHT - 3, hpWidth, -4);
+  });
+
+  ctx.fillStyle = 'black';
   state.arrows.forEach(({ x }) =>
     ctx.fillRect(x, FLOOR_Y - PLAYER_HEIGHT * 0.5, -10, -2)
   );
@@ -69,8 +87,9 @@ const render = (canvas, state) => {
 
 const updatePlayer = (state) => {
   state.player.loadCounter -= game.preferences.timeSpeed;
+  const range = upgradeValues.range(state.upgrades.range);
   const enemyInRange = state.enemies.some(
-    ({ x }) => Math.abs(x - PLAYER_X) <= state.player.range
+    ({ x }) => Math.abs(x - PLAYER_X) <= range
   );
   const isLoaded = state.player.loadCounter <= 0;
   if (isLoaded && enemyInRange) {
@@ -82,7 +101,7 @@ const updatePlayer = (state) => {
 };
 
 const handleEnemyKill = (state, enemy) => {
-  state.player.coins += enemyCoinReward(state.upgrades.lootBonus);
+  state.player.coins += upgradeValues.lootBonus(state.upgrades.lootBonus);
 };
 
 const updateArrow = (state) => (arrow) => {
@@ -93,8 +112,14 @@ const updateArrow = (state) => (arrow) => {
   const enemy = state.enemies.find((e) => e.x >= arrowStartX && e.x < nextX);
 
   if (enemy) {
+    const isFrozen = enemy.freeze > 0;
+    const frozenBonus = isFrozen ? 2 : 1;
     const isCrit =
-      Math.random() < upgradeValues.critChance(state.upgrades.critChance);
+      Math.random() <
+      upgradeValues.critChance(state.upgrades.critChance) * frozenBonus;
+    if (isCrit) {
+      DOM.displayMessage(enemy.x, FLOOR_Y - PLAYER_HEIGHT, 'Crit!', 'red');
+    }
     const critMultiplier = isCrit
       ? upgradeValues.critMultiplier(state.upgrades.critMultiplier)
       : 1;
@@ -103,6 +128,20 @@ const updateArrow = (state) => (arrow) => {
 
     if (enemy.hp <= 0) {
       handleEnemyKill(state, enemy);
+    } else if (!isFrozen && !isCrit) {
+      const willFreeze =
+        Math.random() < upgradeValues.freezeChance(state.upgrades.freezeChance);
+      if (willFreeze) {
+        enemy.freeze = upgradeValues.freezeDuration(
+          state.upgrades.freezeDuration
+        );
+        DOM.displayMessage(
+          enemy.x,
+          FLOOR_Y - PLAYER_HEIGHT,
+          'Frozen!',
+          'darkblue'
+        );
+      }
     }
   }
 
@@ -110,11 +149,17 @@ const updateArrow = (state) => (arrow) => {
 };
 
 const updateEnemy = (state) => (enemy) => {
+  enemy.freeze = Math.max(0, enemy.freeze - game.preferences.timeSpeed);
+  if (enemy.freeze > 0) return;
   enemy.x += ENEMY_VELOCITY * game.preferences.timeSpeed;
 };
 
-const shoot = (state) => {
-  state.arrows.push({ x: PLAYER_X, hp: 1, damage: 15 });
+const shoot = () => {
+  game.state.arrows.push({
+    x: PLAYER_X,
+    hp: 1,
+    damage: upgradeValues.damage(game.state.upgrades.damage),
+  });
 };
 
 const updateWave = () => {
@@ -152,6 +197,8 @@ const tick = () => {
 const enemyFactory = (state, index) => ({
   x: ENEMY_SPAWN_MIN_DISTANCE + ENEMY_SPACE * index,
   hp: waveToEnemyHp(state.wave),
+  maxHp: waveToEnemyHp(state.wave),
+  freeze: 0,
 });
 
 const spawnWave = (wave) => {
@@ -173,10 +220,14 @@ const createState = () => ({
   enemies: [],
   arrows: [],
   upgrades: {
-    loadTicks: 0,
     lootBonus: 0,
+    damage: 0,
+    loadTicks: 0,
+    range: 0,
     critChance: 0,
     critMultiplier: 0,
+    freezeChance: 0,
+    freezeDuration: 0,
   },
   player: {
     coins: 0,

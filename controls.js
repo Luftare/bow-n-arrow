@@ -1,6 +1,7 @@
 const renderStats = (state) => {
   DOM.stats.innerHTML = `
-    <span>${state.player.coins}</span>
+    <span>Coins: ${state.player.coins}</span>
+    <span>Wave: ${state.wave}</span>
   `;
 };
 
@@ -36,17 +37,28 @@ const renderPreferences = () => {
 
 const renderUpgrades = (state) => {
   const labels = {
+    damage: 'Damage',
+    range: 'Range',
     loadTicks: 'Load Time',
     lootBonus: 'Loot Bonus',
     critChance: 'Crit Chance',
     critMultiplier: 'Crit Multiplier',
+    freezeChance: 'Freeze Chance',
+    freezeDuration: 'Freeze Duration',
   };
 
+  const percentage = (value) => (value * 100).toFixed(1) + '%';
+  const decimal = (value) => value.toFixed(1);
+
   const formats = {
-    loadTicks: (value) => value,
     lootBonus: (value) => value,
-    critChance: (value) => (value * 100).toFixed(1) + '%',
-    critMultiplier: (value) => value,
+    damage: (value) => value,
+    loadTicks: (value) => value,
+    range: (value) => value + 'm',
+    critChance: percentage,
+    critMultiplier: decimal,
+    freezeChance: percentage,
+    freezeDuration: (value) => value,
   };
 
   const upgradeDOMElements = [];
