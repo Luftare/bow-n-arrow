@@ -1,6 +1,7 @@
 const DOM = {
   stats: document.getElementById('stats'),
   game: document.getElementById('game'),
+  gameOverScreen: document.getElementById('game-over-screen'),
   preferences: document.getElementById('preferences'),
   gameElementsContainer: document.getElementById('game-elements-container'),
   upgrades: {

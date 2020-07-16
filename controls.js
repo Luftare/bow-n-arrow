@@ -3,6 +3,8 @@ const renderStats = (state) => {
     <span>Coins: ${state.player.coins}</span>
     <span>Wave: ${state.wave}</span>
   `;
+
+  DOM.gameOverScreen.style.opacity = state.isGameOver ? 1 : 0;
 };
 
 const renderPreferences = () => {
@@ -71,9 +73,9 @@ const renderUpgrades = (state) => {
     upgradeDOMElements.push(`
     <div>
     <span>${labels[upgrade]}</span>
-    <span>${formats[upgrade](upgradeValues[upgrade](level))}</span>
+    <span>${formats[upgrade](get(upgrade))}</span>
     <span> --> </span>
-    <span>${formats[upgrade](upgradeValues[upgrade](level + 1))}</span>
+    <span>${formats[upgrade](get(upgrade, 1))}</span>
     <span>Cost: ${upgradeCost(level)}</span>
     <button id="${upgrade}">Upgrade</button>
     </div>
