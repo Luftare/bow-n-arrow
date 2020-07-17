@@ -8,7 +8,7 @@ const DOM = {
     container: document.getElementById('upgrades'),
   },
 
-  displayMessage(x, y, message, color, size = 14) {
+  displayMessage(x, y, message, color, size = 16) {
     const messageElement = document.createElement('span');
     messageElement.innerHTML = message;
     messageElement.style.left = `${x}px`;
@@ -21,13 +21,30 @@ const DOM = {
 
     setTimeout(() => {
       DOM.gameElementsContainer.removeChild(messageElement);
-    }, 500);
+    }, 2000);
+  },
+
+  highlight(id) {
+    document.getElementById(id).classList.add('bounce-once');
+
+    setTimeout(() => {
+      document.getElementById(id).classList.remove('bounce-once');
+    }, 300);
   },
 
   images: {
+    arrow: document.getElementById('asset-arrow'),
     orcs: [
       document.getElementById('asset-orc-0'),
       document.getElementById('asset-orc-1'),
+    ],
+    bosses: [
+      document.getElementById('asset-boss-0'),
+      document.getElementById('asset-boss-1'),
+    ],
+    player: [
+      document.getElementById('asset-player-0'),
+      document.getElementById('asset-player-1'),
     ],
   },
 };

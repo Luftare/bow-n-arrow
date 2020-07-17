@@ -1,13 +1,13 @@
 const WAVE_GAP_TICKS = 100;
 
-const ENEMY_SPAWN_MIN_DISTANCE = 300;
-const ENEMY_SPACE = 30;
-const ENEMY_VELOCITY = -0.3;
-const ARROW_VELOCITY = 3;
-const PLAYER_X = 40;
-const PLAYER_HEIGHT = 30;
-const PLAYER_WIDTH = 15;
-let FLOOR_Y = DOM.game.height * 0.76;
+const ENEMY_SPAWN_MIN_DISTANCE = 550;
+const ENEMY_SPACE = 50;
+const ENEMY_VELOCITY = -1;
+const ARROW_VELOCITY = 6;
+const PLAYER_X = 80;
+const PLAYER_HEIGHT = 64;
+const PLAYER_WIDTH = 32;
+let FLOOR_Y = DOM.game.height * 0.78;
 
 const game = {
   state: null,
@@ -16,30 +16,30 @@ const game = {
   },
 };
 
-const booleanOsc = (frq) =>
-  Math.cos(Date.now() * frq * game.preferences.timeSpeed) > 0;
+const booleanOsc = (frq, offset = 0) =>
+  Math.cos(Date.now() * frq * game.preferences.timeSpeed + offset) > 0;
 
 const get = (key, levelAdjust = 0) =>
   upgradeValues[key](game.state.upgrades[key] + levelAdjust);
 
 const upgradeValues = {
   lootBonus: (level) => 1 + Math.floor(level ** 2.1),
-  tripleLootChance: (level) => 0.04 + level * 0.02,
+  tripleLootChance: (level) => 0 + level * 0.03,
   damage: (level) => Math.floor(10 + level ** 1.5),
-  loadTicks: (level) => 100 - level * 2,
-  range: (level) => 150 + level * 2,
+  loadTicks: (level) => 100 - level * 4,
+  range: (level) => 250 + level * 4,
   critChance: (level) => 0.04 + level * 0.02,
   critMultiplier: (level) => 1.5 + level * 0.15,
   freezeChance: (level) => 0 + level * 0.02,
-  freezeDuration: (level) => 100 + level * 50,
+  freezeDuration: (level) => 20 + level * 10,
   pierceChance: (level) => 0.0 + level * 0.02,
 };
 
 const waveToWaveGapTicks = (wave) => 100 - wave * 5;
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
 const waveToIsBoss = (wave) => wave % 4 === 0;
-const waveToEnemyHp = (wave) => 15 + wave * 0.5;
-const waveToBossHp = (wave) => 50 + wave ** 1.5;
+const waveToEnemyHp = (wave) => 5 + wave * 0.5;
+const waveToBossHp = (wave) => 20 + wave ** 1.5;
 const waveToTickCount = (wave) => {
   const isBoss = waveToIsBoss(wave);
   const enemyCount = isBoss ? 1 : waveToEnemyCount(wave);
@@ -51,52 +51,6 @@ const upgradeCost = (currentLevel) => Math.floor(2 ** currentLevel);
 
 const isAlive = ({ hp }) => hp > 0;
 
-const renderGame = (canvas, state) => {
-  const ctx = canvas.getContext('2d');
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = 'lightgray';
-  ctx.fillRect(PLAYER_X + get('range'), FLOOR_Y, -2, DOM.game.height - FLOOR_Y);
-
-  state.enemies.forEach(({ x, hp, maxHp, freeze, isBoss }) => {
-    const sizeMultiplier = isBoss ? 2 : 1;
-    ctx.fillStyle = freeze > 0 ? 'blue' : 'darkgreen';
-    // ctx.fillRect(
-    //   x,
-    //   FLOOR_Y,
-    //   PLAYER_WIDTH * sizeMultiplier,
-    //   -PLAYER_HEIGHT * sizeMultiplier
-    // );
-
-    ctx.drawImage(
-      DOM.images.orcs[booleanOsc(0.015) || freeze > 0 ? 0 : 1],
-      Math.round(x - 10 * sizeMultiplier),
-      Math.round(FLOOR_Y - 32 * sizeMultiplier),
-      32 * sizeMultiplier,
-      32 * sizeMultiplier
-    );
-
-    ctx.fillStyle = 'lightgreen';
-    const hpWidth = (PLAYER_WIDTH * sizeMultiplier * hp) / maxHp;
-    ctx.fillRect(x, FLOOR_Y - PLAYER_HEIGHT * sizeMultiplier - 3, hpWidth, -4);
-  });
-
-  ctx.fillStyle = 'black';
-  ctx.fillRect(PLAYER_X, FLOOR_Y, -PLAYER_WIDTH, -PLAYER_HEIGHT);
-
-  const maxLoadTicks = get('loadTicks');
-  const isAiming = maxLoadTicks - state.player.loadCounter > 15;
-  if (isAiming) {
-    ctx.fillRect(PLAYER_X, FLOOR_Y - 10, -PLAYER_WIDTH - 4, -6);
-  }
-
-  ctx.fillStyle = 'black';
-  state.arrows.forEach(({ x }) =>
-    ctx.fillRect(x, FLOOR_Y - PLAYER_HEIGHT * 0.5, -10, -2)
-  );
-};
-
 const render = (canvas, state) => {
   renderGame(canvas, state);
   renderStats(state);
@@ -105,13 +59,19 @@ const render = (canvas, state) => {
 
 const updatePlayer = (state) => {
   state.player.loadCounter -= game.preferences.timeSpeed;
+  const overload = Math.max(
+    0,
+    game.preferences.timeSpeed - state.player.loadCounter
+  );
+  state.player.loadCounter = Math.max(0, state.player.loadCounter);
+
   const range = get('range');
   const enemyInRange = state.enemies.some(
     ({ x }) => Math.abs(x - PLAYER_X) <= range
   );
   const isLoaded = state.player.loadCounter <= 0;
   if (isLoaded && enemyInRange) {
-    state.player.loadCounter = get('loadTicks');
+    state.player.loadCounter = get('loadTicks') - overload;
     shoot(state);
   }
 };
@@ -127,8 +87,8 @@ const handleEnemyKill = (state, enemy) => {
       PLAYER_X - 24,
       FLOOR_Y - PLAYER_HEIGHT,
       'Triple!',
-      'black',
-      14
+      'orange',
+      20
     );
   }
 };
@@ -150,14 +110,14 @@ const updateArrow = (state) => (arrow) => {
     enemy.hp -= damage;
     DOM.displayMessage(
       enemy.x,
-      FLOOR_Y - PLAYER_HEIGHT,
+      FLOOR_Y - 64 * (enemy.isBoss ? 2 : 1),
       damage,
-      isCrit ? 'black' : 'black',
-      isCrit ? 18 : 12
+      'black',
+      isCrit ? 24 : 16
     );
-    const willPierce = !isCrit && Math.random() < get('pierceChance');
+    const willPierce = !isFrozen && Math.random() < get('pierceChance');
     if (willPierce) {
-      DOM.displayMessage(enemy.x, FLOOR_Y - PLAYER_HEIGHT, 'Pierce!', 'orange');
+      DOM.displayMessage(enemy.x, FLOOR_Y - PLAYER_HEIGHT, 'Pierce!', 'red');
       arrow.x = enemy.x + 0.0001;
     } else {
       arrow.hp--;
@@ -170,12 +130,6 @@ const updateArrow = (state) => (arrow) => {
         Math.random() < upgradeValues.freezeChance(state.upgrades.freezeChance);
       if (willFreeze) {
         enemy.freeze = get('freezeDuration');
-        DOM.displayMessage(
-          enemy.x,
-          FLOOR_Y - PLAYER_HEIGHT,
-          'Frozen!',
-          'darkblue'
-        );
       }
     }
   }
@@ -238,6 +192,7 @@ const enemyFactory = (state, index) => ({
   maxHp: waveToEnemyHp(state.wave),
   freeze: 0,
   isBoss: false,
+  animationOffset: Math.random() * 10000,
 });
 
 const bossFactory = (state) => ({
@@ -246,6 +201,7 @@ const bossFactory = (state) => ({
   maxHp: waveToBossHp(state.wave),
   freeze: 0,
   isBoss: true,
+  animationOffset: Math.random() * 10000,
 });
 
 const spawnWave = (wave) => {
@@ -279,9 +235,9 @@ const createState = () => ({
     range: 0,
     critChance: 0,
     critMultiplier: 0,
+    pierceChance: 0,
     freezeChance: 0,
     freezeDuration: 0,
-    pierceChance: 0,
   },
   player: {
     coins: 0,
@@ -294,4 +250,9 @@ const boot = () => {
   game.state = createState();
   renderUpgrades(game.state);
   loop();
+};
+
+const startNewGame = () => {
+  game.state = createState();
+  renderUpgrades(game.state);
 };

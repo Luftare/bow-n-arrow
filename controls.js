@@ -1,35 +1,25 @@
 const renderStats = (state) => {
   DOM.stats.innerHTML = `
-    <span>Coins: ${state.player.coins}</span>
-    <span>Wave: ${state.wave}</span>
+    <span>Coins: <b>${state.player.coins}</b></span>
+    <span>Wave: <b>${state.wave}</b></span>
   `;
 
   DOM.gameOverScreen.style.opacity = state.isGameOver ? 1 : 0;
 };
 
 const renderPreferences = () => {
-  const NEW_GAME = 'new-game';
   const timeSpeeds = [1, 2, 8, 16];
   const timeSpeedId = (num) => `time-speed-${num}`;
 
-  DOM.preferences.innerHTML = `
-    <button id="${NEW_GAME}">New Game</button>
+  DOM.preferences.innerHTML = timeSpeeds
+    .map(
+      (value, index) =>
+        `<label><input type="radio" name="time-speed" id="${timeSpeedId(
+          value
+        )}" ${index === 0 ? 'checked' : ''} /> x${value}</label>`
+    )
+    .join('');
 
-    ${timeSpeeds
-      .map(
-        (value, index) =>
-          `<label><input type="radio" name="time-speed" id="${timeSpeedId(
-            value
-          )}" ${index === 0 ? 'checked' : ''} /> x${value}</label>`
-      )
-      .join('')}
-    
-  `;
-
-  document.getElementById(NEW_GAME).addEventListener('click', () => {
-    game.state = createState();
-    renderUpgrades(game.state);
-  });
   timeSpeeds.forEach((value) => {
     document
       .getElementById(timeSpeedId(value))
@@ -39,16 +29,29 @@ const renderPreferences = () => {
 
 const renderUpgrades = (state) => {
   const labels = {
-    lootBonus: 'Loot Bonus',
+    lootBonus: 'Loot',
     tripleLootChance: 'Triple Loot Chance',
     damage: 'Damage',
     range: 'Range',
     loadTicks: 'Load Time',
     critChance: 'Crit Chance',
     critMultiplier: 'Crit Multiplier',
+    pierceChance: 'Pierce Chance',
     freezeChance: 'Freeze Chance',
     freezeDuration: 'Freeze Duration',
-    pierceChance: 'Pierce Chance',
+  };
+
+  const colors = {
+    lootBonus: 'yellow',
+    tripleLootChance: 'yellow',
+    damage: 'red',
+    range: 'red',
+    loadTicks: 'red',
+    critChance: 'red',
+    critMultiplier: 'red',
+    pierceChance: 'red',
+    freezeChance: 'blue',
+    freezeDuration: 'blue',
   };
 
   const percentage = (value) => (value * 100).toFixed(1) + '%';
@@ -58,8 +61,8 @@ const renderUpgrades = (state) => {
     lootBonus: (value) => value,
     tripleLootChance: percentage,
     damage: (value) => value,
-    loadTicks: (value) => value,
-    range: (value) => value + 'm',
+    loadTicks: (value) => (value / 60).toFixed(2) + 's',
+    range: (value) => (0.06 * value).toFixed(1) + 'm',
     critChance: percentage,
     critMultiplier: decimal,
     freezeChance: percentage,
@@ -71,28 +74,46 @@ const renderUpgrades = (state) => {
 
   for (let upgrade in state.upgrades) {
     const level = state.upgrades[upgrade];
+    const change = formats[upgrade](get(upgrade, 1) - get(upgrade));
 
     upgradeDOMElements.push(`
-    <div>
-    <span>${labels[upgrade]}</span>
-    <span>${formats[upgrade](get(upgrade))}</span>
-    <span> --> </span>
-    <span>${formats[upgrade](get(upgrade, 1))}</span>
-    <span>Cost: ${upgradeCost(level)}</span>
-    <button id="${upgrade}">Upgrade</button>
-    </div>
+    <tr>
+      <td>${labels[upgrade]}</td>
+      <td id="${upgrade}-value">${formats[upgrade](get(upgrade))}</td>
+      <td>${(change + '').includes('-') ? '' : '+'}${change}</td>
+      <td>${upgradeCost(level)}</td>
+      <td style="text-align: right;">
+        <button id="${upgrade}" class="button button--${
+      colors[upgrade]
+    }">Upgrade</button>
+      </td>
+    </tr>
     `);
   }
 
-  DOM.upgrades.container.innerHTML = upgradeDOMElements.join('\n');
+  DOM.upgrades.container.innerHTML = `
+    <table>
+    <tr>
+      <th>Type</th>
+      <th>Current</th>
+      <th>Change</th>
+      <th>Coins</th>
+      <th></th>
+    </tr>
+    ${upgradeDOMElements.join('')}
+    </table>
+  `;
 
   for (let upgrade in state.upgrades) {
     const level = state.upgrades[upgrade];
     DOM.upgrades[upgrade] = document.getElementById(upgrade);
     DOM.upgrades[upgrade].addEventListener('click', () => {
+      if (game.state.isGameOver) return;
       state.player.coins -= upgradeCost(state.upgrades[upgrade]);
       state.upgrades[upgrade]++;
       renderUpgrades(state);
+
+      DOM.highlight(`${upgrade}-value`);
     });
   }
 };

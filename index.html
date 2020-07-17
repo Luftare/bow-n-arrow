@@ -5,23 +5,40 @@
     <title>Bow n Arrow</title>
     <link rel="stylesheet" href="style.css" />
     <script defer src="DOM.js"></script>
+    <script defer src="render.js"></script>
     <script defer src="game.js"></script>
     <script defer src="controls.js"></script>
   </head>
   <body>
-    <div id="stats"></div>
-    <div id="game-container">
-      <canvas id="game"></canvas>
-      <div id="game-elements-container"></div>
-      <div id="game-over-screen">GAME OVER</div>
-    </div>
-    <div id="controls">
-      <div id="preferences"></div>
-      <div id="upgrades"></div>
-    </div>
-    <div hidden>
-      <img src="assets/orc-0.png" id="asset-orc-0" />
-      <img src="assets/orc-1.png" id="asset-orc-1" />
-    </div>
+    <main>
+      <div id="stats"></div>
+      <div id="game-container">
+        <canvas id="game" width="500" height="300"></canvas>
+        <div id="game-elements-container"></div>
+        <div id="game-over-screen">
+          <div>GAME OVER</div>
+          <button
+            onclick="startNewGame()"
+            style="margin-top: 16px;"
+            class="button infinite-bounce"
+          >
+            New Game
+          </button>
+        </div>
+      </div>
+      <div id="controls">
+        <div id="preferences"></div>
+        <div id="upgrades"></div>
+      </div>
+      <div hidden>
+        <img src="assets/orc-0.png" id="asset-orc-0" />
+        <img src="assets/orc-1.png" id="asset-orc-1" />
+        <img src="assets/boss-0.png" id="asset-boss-0" />
+        <img src="assets/boss-1.png" id="asset-boss-1" />
+        <img src="assets/player-0.png" id="asset-player-0" />
+        <img src="assets/player-1.png" id="asset-player-1" />
+        <img src="assets/arrow.png" id="asset-arrow" />
+      </div>
+    </main>
   </body>
 </html>
