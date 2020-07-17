@@ -1,3 +1,9 @@
+#game {
+  background-image: url('assets/background.jpg');
+  background-position: center;
+  background-size: cover;
+}
+
 #game-container {
   background: lightblue;
   display: inline-block;

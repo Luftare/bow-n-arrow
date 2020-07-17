@@ -23,4 +23,11 @@ const DOM = {
       DOM.gameElementsContainer.removeChild(messageElement);
     }, 500);
   },
+
+  images: {
+    orcs: [
+      document.getElementById('asset-orc-0'),
+      document.getElementById('asset-orc-1'),
+    ],
+  },
 };

@@ -7,7 +7,7 @@ const ARROW_VELOCITY = 3;
 const PLAYER_X = 40;
 const PLAYER_HEIGHT = 30;
 const PLAYER_WIDTH = 15;
-const FLOOR_Y = 100;
+let FLOOR_Y = DOM.game.height * 0.76;
 
 const game = {
   state: null,
@@ -15,6 +15,9 @@ const game = {
     timeSpeed: 1,
   },
 };
+
+const booleanOsc = (frq) =>
+  Math.cos(Date.now() * frq * game.preferences.timeSpeed) > 0;
 
 const get = (key, levelAdjust = 0) =>
   upgradeValues[key](game.state.upgrades[key] + levelAdjust);
@@ -53,11 +56,31 @@ const renderGame = (canvas, state) => {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = 'green';
-  ctx.fillRect(0, FLOOR_Y, DOM.game.width, DOM.game.height - FLOOR_Y);
-
   ctx.fillStyle = 'lightgray';
   ctx.fillRect(PLAYER_X + get('range'), FLOOR_Y, -2, DOM.game.height - FLOOR_Y);
+
+  state.enemies.forEach(({ x, hp, maxHp, freeze, isBoss }) => {
+    const sizeMultiplier = isBoss ? 2 : 1;
+    ctx.fillStyle = freeze > 0 ? 'blue' : 'darkgreen';
+    // ctx.fillRect(
+    //   x,
+    //   FLOOR_Y,
+    //   PLAYER_WIDTH * sizeMultiplier,
+    //   -PLAYER_HEIGHT * sizeMultiplier
+    // );
+
+    ctx.drawImage(
+      DOM.images.orcs[booleanOsc(0.015) || freeze > 0 ? 0 : 1],
+      Math.round(x - 10 * sizeMultiplier),
+      Math.round(FLOOR_Y - 32 * sizeMultiplier),
+      32 * sizeMultiplier,
+      32 * sizeMultiplier
+    );
+
+    ctx.fillStyle = 'lightgreen';
+    const hpWidth = (PLAYER_WIDTH * sizeMultiplier * hp) / maxHp;
+    ctx.fillRect(x, FLOOR_Y - PLAYER_HEIGHT * sizeMultiplier - 3, hpWidth, -4);
+  });
 
   ctx.fillStyle = 'black';
   ctx.fillRect(PLAYER_X, FLOOR_Y, -PLAYER_WIDTH, -PLAYER_HEIGHT);
@@ -67,21 +90,6 @@ const renderGame = (canvas, state) => {
   if (isAiming) {
     ctx.fillRect(PLAYER_X, FLOOR_Y - 10, -PLAYER_WIDTH - 4, -6);
   }
-
-  state.enemies.forEach(({ x, hp, maxHp, freeze, isBoss }) => {
-    const sizeMultiplier = isBoss ? 2 : 1;
-    ctx.fillStyle = freeze > 0 ? 'blue' : 'darkgreen';
-    ctx.fillRect(
-      x,
-      FLOOR_Y,
-      PLAYER_WIDTH * sizeMultiplier,
-      -PLAYER_HEIGHT * sizeMultiplier
-    );
-
-    ctx.fillStyle = 'lightgreen';
-    const hpWidth = (PLAYER_WIDTH * sizeMultiplier * hp) / maxHp;
-    ctx.fillRect(x, FLOOR_Y - PLAYER_HEIGHT * sizeMultiplier - 3, hpWidth, -4);
-  });
 
   ctx.fillStyle = 'black';
   state.arrows.forEach(({ x }) =>
@@ -144,8 +152,8 @@ const updateArrow = (state) => (arrow) => {
       enemy.x,
       FLOOR_Y - PLAYER_HEIGHT,
       damage,
-      isCrit ? 'red' : 'black',
-      isCrit ? 14 : 12
+      isCrit ? 'black' : 'black',
+      isCrit ? 18 : 12
     );
     const willPierce = !isCrit && Math.random() < get('pierceChance');
     if (willPierce) {
