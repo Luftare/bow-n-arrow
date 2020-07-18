@@ -1,18 +1,26 @@
 * {
   outline: none;
+  font-family: sans-serif;
 }
 
 body {
   background: linear-gradient(rgb(250, 232, 255), rgb(249, 255, 223));
+  margin: 0;
 }
 
 main {
-  margin: 48px auto;
+  margin-left: auto;
+  margin-right: auto;
   width: 100%;
   max-width: 600px;
 }
 
 #stats {
+  position: absolute;
+  width: 100%;
+  padding: 8px 16px;
+  top: 0;
+  box-sizing: border-box;
   font-size: 26px;
   display: flex;
   justify-content: space-between;
