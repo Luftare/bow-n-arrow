@@ -4,7 +4,7 @@ const renderStats = (state) => {
     <span>Wave: <b>${state.wave}</b></span>
   `;
 
-  DOM.gameOverScreen.style.opacity = state.isGameOver ? 1 : 0;
+  DOM.gameOverScreen.style.display = state.isGameOver ? 'flex' : 'none';
 };
 
 const renderPreferences = () => {
