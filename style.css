@@ -19,7 +19,7 @@ main {
   font-size: 26px;
   display: flex;
   justify-content: space-between;
-  margin: 8px 0;
+  margin: 8px;
 }
 
 #preferences {
@@ -211,6 +211,10 @@ label:hover {
 }
 
 .tooltip-target:hover .tooltip {
+  display: inline-block;
+}
+
+.tooltip-target:active .tooltip {
   display: inline-block;
 }
 
