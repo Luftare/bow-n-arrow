@@ -4,6 +4,7 @@ const DOM = {
   game: document.getElementById('game'),
   gameContainer: document.getElementById('game-container'),
   gameOverScreen: document.getElementById('game-over-screen'),
+  gameOverText: document.getElementById('game-over-text'),
   preferences: document.getElementById('preferences'),
   gameElementsContainer: document.getElementById('game-elements-container'),
   upgrades: {
@@ -36,6 +37,7 @@ const DOM = {
 
   images: {
     arrow: document.getElementById('asset-arrow'),
+    flower: document.getElementById('asset-flower'),
     orcs: [
       document.getElementById('asset-orc-0'),
       document.getElementById('asset-orc-1'),

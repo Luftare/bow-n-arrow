@@ -4,6 +4,7 @@ const renderStats = (state) => {
     <span>Wave: <b>${state.wave}</b></span>
   `;
 
+  DOM.gameOverText.innerHTML = isGameWon() ? 'YOU WIN!' : 'GAME OVER';
   DOM.gameOverScreen.style.display = state.isGameOver ? 'flex' : 'none';
 };
 
@@ -31,6 +32,7 @@ const renderUpgrades = (state) => {
   const labels = {
     lootBonus: 'Coin reward',
     tripleLootChance: 'Triple Loot Chance',
+    flower: 'Coin Flower',
     damage: 'Damage',
     range: 'Range',
     loadTicks: 'Load Time',
@@ -44,6 +46,7 @@ const renderUpgrades = (state) => {
   const colors = {
     lootBonus: 'yellow',
     tripleLootChance: 'yellow',
+    flower: 'yellow',
     damage: 'red',
     range: 'red',
     loadTicks: 'red',
@@ -56,7 +59,10 @@ const renderUpgrades = (state) => {
 
   const descriptions = {
     lootBonus: 'Coin reward for killing an orc',
-    tripleLootChance: 'Chance of getting a triple reward.',
+    tripleLootChance: 'Chance of getting a triple reward',
+    flower: `At the beginning of a wave, each flower generates additional ${(
+      upgradeValues.flower(1) * 100
+    ).toFixed(0)}% of current coins`,
     damage: 'Arrow base damage',
     range: 'Range of arrow',
     loadTicks: 'Time between shooting arrows',
@@ -78,6 +84,7 @@ const renderUpgrades = (state) => {
   const formats = {
     lootBonus: (value) => value,
     tripleLootChance: percentage,
+    flower: percentage,
     damage: (value) => value,
     loadTicks: seconds,
     range: (value) => (0.06 * value).toFixed(1) + 'm',
@@ -86,6 +93,10 @@ const renderUpgrades = (state) => {
     freezeChance: percentage,
     freezeDuration: seconds,
     pierceChance: percentage,
+  };
+
+  const upgradeTriggers = {
+    flower: spawnFlower,
   };
 
   const upgradeDOMElements = [];
@@ -135,6 +146,8 @@ const renderUpgrades = (state) => {
       if (game.state.isGameOver) return;
       state.player.coins -= upgradeCost(state.upgrades[upgrade]);
       state.upgrades[upgrade]++;
+
+      if (upgradeTriggers[upgrade]) upgradeTriggers[upgrade]();
       renderUpgrades(state);
 
       DOM.highlight(`${upgrade}-value`);

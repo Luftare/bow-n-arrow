@@ -26,7 +26,8 @@ const get = (key, levelAdjust = 0) =>
 
 const upgradeValues = {
   lootBonus: (level) => 1 + Math.floor(level ** 2.1),
-  tripleLootChance: (level) => 0 + level * 0.02,
+  tripleLootChance: (level) => 0 + level * 0.05,
+  flower: (level) => 0.02 * level,
   damage: (level) => Math.floor(10 + level ** 1.5),
   loadTicks: (level) => 100 - level * 4,
   range: (level) => 250 + level * 4,
@@ -143,6 +144,12 @@ const updateEnemy = (state) => (enemy) => {
   enemy.freeze = Math.max(0, enemy.freeze - game.preferences.timeSpeed);
   if (enemy.freeze > 0) return;
   enemy.x += ENEMY_VELOCITY * game.preferences.timeSpeed;
+
+  state.flowers = state.flowers.filter(({ x }) => {
+    const willDie = x > enemy.x;
+    // Tell player if a flower died.
+    return !willDie;
+  });
 };
 
 const shoot = () => {
@@ -164,8 +171,11 @@ const updateWave = () => {
   }
 };
 
+const isGameWon = () => game.state.wave >= 200;
+
 const updateGameOver = () => {
-  game.state.isGameOver = game.state.enemies.some(({ x }) => x <= PLAYER_X);
+  game.state.isGameOver =
+    isGameWon() || game.state.enemies.some(({ x }) => x <= PLAYER_X);
 };
 
 const tick = () => {
@@ -216,6 +226,30 @@ const spawnWave = (wave) => {
       );
 
   game.state.enemies = [...game.state.enemies, ...newEnemies];
+
+  const flowerCount = game.state.flowers.length;
+  const flowerCoins = Math.floor(
+    upgradeValues.flower(flowerCount) * game.state.player.coins
+  );
+  game.state.player.coins += flowerCoins;
+
+  if (flowerCoins) {
+    game.state.flowers.forEach(({ x }) => {
+      DOM.displayMessage(
+        x - 4,
+        FLOOR_Y - 20 + randomDev(6),
+        `+${Math.round(flowerCoins / flowerCount)}`,
+        'orange',
+        16
+      );
+    });
+  }
+};
+
+const spawnFlower = () => {
+  const index = game.state.upgrades.flower;
+  const FLOWER_GAP = 20;
+  game.state.flowers.push({ x: PLAYER_X + FLOWER_GAP * index + 5 });
 };
 
 const loop = () => {
@@ -229,9 +263,11 @@ const createState = () => ({
   wave: 0,
   enemies: [],
   arrows: [],
+  flowers: [],
   upgrades: {
     lootBonus: 0,
     tripleLootChance: 0,
+    flower: 0,
     damage: 0,
     loadTicks: 0,
     range: 0,

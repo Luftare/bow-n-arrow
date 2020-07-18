@@ -9,6 +9,17 @@ const { renderGame } = (() => {
     );
   };
 
+  const renderFlowers = (ctx, canvas, state) => {
+    state.flowers.forEach(({ x }) => {
+      ctx.fillStyle = 'red';
+      ctx.drawImage(
+        DOM.images.flower,
+        Math.round(x - DOM.images.flower.width),
+        Math.round(FLOOR_Y - DOM.images.flower.height)
+      );
+    });
+  };
+
   const renderEnemies = (ctx, canvas, state) => {
     state.enemies.forEach(
       ({ x, hp, maxHp, freeze, isBoss, animationOffset }) => {
@@ -92,9 +103,13 @@ const { renderGame } = (() => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    [renderRange, renderEnemies, renderPlayer, renderArrows].forEach((fn) =>
-      fn(ctx, canvas, state)
-    );
+    [
+      renderRange,
+      renderFlowers,
+      renderEnemies,
+      renderPlayer,
+      renderArrows,
+    ].forEach((fn) => fn(ctx, canvas, state));
   };
   return {
     renderGame,
