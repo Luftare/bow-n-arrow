@@ -29,7 +29,7 @@ const renderPreferences = () => {
 
 const renderUpgrades = (state) => {
   const labels = {
-    lootBonus: 'Loot',
+    lootBonus: 'Coin reward',
     tripleLootChance: 'Triple Loot Chance',
     damage: 'Damage',
     range: 'Range',
@@ -54,19 +54,37 @@ const renderUpgrades = (state) => {
     freezeDuration: 'blue',
   };
 
+  const descriptions = {
+    lootBonus: 'Coin reward for killing an orc',
+    tripleLootChance: 'Chance of getting a triple reward.',
+    damage: 'Arrow base damage',
+    range: 'Range of arrow',
+    loadTicks: 'Time between shooting arrows',
+    critChance:
+      'Chance of making a critical hit and dealing extra damage to target',
+    critMultiplier: 'Damage multiplier when a critical hit occurs',
+    pierceChance:
+      "Arrow's chance to pierce a target and continue towards the next target",
+    freezeChance:
+      'Chance of freezing a target making it unable to move while frozen',
+    freezeDuration:
+      'Duration of the freeze effect. Frozen targets cannot be pierced.',
+  };
+
   const percentage = (value) => (value * 100).toFixed(1) + '%';
   const decimal = (value) => value.toFixed(1);
+  const seconds = (value) => (value / 60).toFixed(2) + 's';
 
   const formats = {
     lootBonus: (value) => value,
     tripleLootChance: percentage,
     damage: (value) => value,
-    loadTicks: (value) => (value / 60).toFixed(2) + 's',
+    loadTicks: seconds,
     range: (value) => (0.06 * value).toFixed(1) + 'm',
     critChance: percentage,
     critMultiplier: decimal,
     freezeChance: percentage,
-    freezeDuration: (value) => value,
+    freezeDuration: seconds,
     pierceChance: percentage,
   };
 
@@ -78,7 +96,9 @@ const renderUpgrades = (state) => {
 
     upgradeDOMElements.push(`
     <tr>
-      <td>${labels[upgrade]}</td>
+      <td class="tooltip-target">${labels[upgrade]}<div class="tooltip">${
+      descriptions[upgrade]
+    }</div></td>
       <td id="${upgrade}-value" class="text-center">${formats[upgrade](
       get(upgrade)
     )}</td>

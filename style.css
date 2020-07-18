@@ -123,6 +123,15 @@ td {
   border: 4px solid transparent;
 }
 
+label {
+  padding: 8px;
+  cursor: pointer;
+}
+
+label:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
 .button {
   border: none;
   background: rgb(175, 124, 241);
@@ -133,6 +142,7 @@ td {
   border-radius: 4px;
   width: 100%;
   max-width: 120px;
+  cursor: pointer;
 }
 
 .button:active {
@@ -165,4 +175,38 @@ td {
 
 .text-center {
   text-align: center;
+}
+
+.tooltip-target {
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip {
+  position: absolute;
+  display: none;
+  background: rgb(236, 213, 108);
+  color: rgb(109, 59, 2);
+  padding: 12px;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -14px;
+  width: 0;
+  height: 0;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 10px 17.3px 10px 0;
+  border-color: transparent rgb(236, 213, 108) transparent transparent;
+}
+
+.tooltip-target:hover .tooltip {
+  display: inline-block;
 }
