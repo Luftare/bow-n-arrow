@@ -66,7 +66,7 @@ const renderUpgrades = (state) => {
     pierceChance:
       "Arrow's chance to pierce a target and continue towards the next target",
     freezeChance:
-      'Chance of freezing a target making it unable to move while frozen',
+      'Chance of freezing a target making it unable to move while frozen. Frozen targets are 2x likely to receive a critical hit.',
     freezeDuration:
       'Duration of the freeze effect. Frozen targets cannot be pierced.',
   };
