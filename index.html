@@ -13,9 +13,12 @@
     <script defer src="controls.js"></script>
   </head>
   <body>
-    <main>
-      <div id="stats"></div>
-      <div style="position: sticky; top: 0; z-index: 9;">
+    <main style="display: none;">
+      <div
+        style="position: sticky; top: 0; z-index: 9; pointer-events: none;"
+        id="sticky"
+      >
+        <div id="stats"></div>
         <div id="game-container">
           <canvas id="game"></canvas>
           <div id="game-elements-container"></div>

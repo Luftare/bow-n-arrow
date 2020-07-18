@@ -1,5 +1,6 @@
 const DOM = {
   stats: document.getElementById('stats'),
+  sticky: document.getElementById('sticky'),
   game: document.getElementById('game'),
   gameContainer: document.getElementById('game-container'),
   gameOverScreen: document.getElementById('game-over-screen'),
@@ -53,15 +54,16 @@ const DOM = {
 const handleResize = () => {
   DOM.game.width = DOM.game.clientWidth;
   DOM.game.height = DOM.game.clientHeight;
-  FLOOR_Y = DOM.game.height * 0.78;
 };
 
 window.addEventListener('resize', handleResize);
 
+window.addEventListener('load', () => {
+  boot();
+});
+
 window.addEventListener('scroll', (e) => {
   const isScrolled = window.scrollY > 80;
 
-  DOM.gameContainer.classList[isScrolled ? 'add' : 'remove']('shrink');
+  DOM.sticky.classList[isScrolled ? 'add' : 'remove']('shrink');
 });
-
-handleResize();

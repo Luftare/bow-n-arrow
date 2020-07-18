@@ -150,4 +150,3 @@ const updateUpgradeAvailability = (state) => {
 };
 
 boot();
-renderPreferences();

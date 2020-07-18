@@ -7,7 +7,7 @@ const ARROW_VELOCITY = 6;
 const PLAYER_X = 80;
 const PLAYER_HEIGHT = 64;
 const PLAYER_WIDTH = 32;
-let FLOOR_Y = DOM.game.height * 0.78;
+let FLOOR_Y = DOM.game.clientHeight * 0.78;
 
 const game = {
   state: null,
@@ -54,6 +54,7 @@ const upgradeCost = (currentLevel) => Math.floor(2 ** currentLevel);
 const isAlive = ({ hp }) => hp > 0;
 
 const render = (canvas, state) => {
+  FLOOR_Y = DOM.game.clientHeight * 0.78;
   renderGame(canvas, state);
   renderStats(state);
   updateUpgradeAvailability(state);
@@ -248,9 +249,12 @@ const createState = () => ({
 });
 
 const boot = () => {
+  handleResize();
   game.state = createState();
   renderUpgrades(game.state);
   loop();
+  renderPreferences();
+  document.querySelector('main').style.display = 'block';
 };
 
 const startNewGame = () => {
