@@ -26,15 +26,15 @@ const get = (key, levelAdjust = 0) =>
 
 const upgradeValues = {
   lootBonus: (level) => 1 + Math.floor(level ** 2.1),
-  tripleLootChance: (level) => 0 + level * 0.03,
+  tripleLootChance: (level) => 0 + level * 0.02,
   damage: (level) => Math.floor(10 + level ** 1.5),
   loadTicks: (level) => 100 - level * 4,
   range: (level) => 250 + level * 4,
   critChance: (level) => 0.04 + level * 0.02,
   critMultiplier: (level) => 1.5 + level * 0.15,
+  pierceChance: (level) => 0.0 + level * 0.02,
   freezeChance: (level) => 0 + level * 0.02,
   freezeDuration: (level) => 20 + level * 10,
-  pierceChance: (level) => 0.0 + level * 0.02,
 };
 
 const waveToWaveGapTicks = (wave) => 100 - wave * 5;
