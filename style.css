@@ -6,6 +6,7 @@
 body {
   background: linear-gradient(rgb(250, 232, 255), rgb(249, 255, 223));
   margin: 0;
+  touch-action: manipulation;
 }
 
 main {
