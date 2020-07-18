@@ -52,6 +52,7 @@ const DOM = {
 const handleResize = () => {
   DOM.game.width = DOM.game.clientWidth;
   DOM.game.height = DOM.game.clientHeight;
+  FLOOR_Y = DOM.game.height * 0.78;
 };
 
 window.addEventListener('resize', handleResize);
