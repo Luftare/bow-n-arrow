@@ -12,18 +12,20 @@
   <body>
     <main>
       <div id="stats"></div>
-      <div id="game-container">
-        <canvas id="game"></canvas>
-        <div id="game-elements-container"></div>
-        <div id="game-over-screen">
-          <div>GAME OVER</div>
-          <button
-            onclick="startNewGame()"
-            style="margin-top: 16px;"
-            class="button infinite-bounce"
-          >
-            New Game
-          </button>
+      <div style="position: sticky; top: 0; z-index: 9;">
+        <div id="game-container">
+          <canvas id="game"></canvas>
+          <div id="game-elements-container"></div>
+          <div id="game-over-screen">
+            <div>GAME OVER</div>
+            <button
+              onclick="startNewGame()"
+              style="margin-top: 16px;"
+              class="button infinite-bounce"
+            >
+              New Game
+            </button>
+          </div>
         </div>
       </div>
       <div id="controls">
