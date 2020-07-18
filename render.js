@@ -4,7 +4,7 @@ const { renderGame } = (() => {
     ctx.fillRect(
       PLAYER_X + get('range'),
       FLOOR_Y,
-      -2,
+      -4,
       DOM.game.height - FLOOR_Y
     );
   };
@@ -17,7 +17,7 @@ const { renderGame } = (() => {
 
         ctx.drawImage(
           images[
-            booleanOsc(isBoss ? 0.01 : 0.015, animationOffset) || freeze > 0
+            booleanOsc(isBoss ? 0.013 : 0.018, animationOffset) || freeze > 0
               ? 0
               : 1
           ],

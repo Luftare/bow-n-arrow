@@ -79,9 +79,13 @@ const renderUpgrades = (state) => {
     upgradeDOMElements.push(`
     <tr>
       <td>${labels[upgrade]}</td>
-      <td id="${upgrade}-value">${formats[upgrade](get(upgrade))}</td>
-      <td>${(change + '').includes('-') ? '' : '+'}${change}</td>
-      <td>${upgradeCost(level)}</td>
+      <td id="${upgrade}-value" class="text-center">${formats[upgrade](
+      get(upgrade)
+    )}</td>
+      <td class="text-center">${
+        (change + '').includes('-') ? '' : '+'
+      }${change}</td>
+      <td class="text-center">${upgradeCost(level)}</td>
       <td style="text-align: right;">
         <button id="${upgrade}" class="button button--${
       colors[upgrade]
@@ -95,9 +99,9 @@ const renderUpgrades = (state) => {
     <table>
     <tr>
       <th>Type</th>
-      <th>Current</th>
-      <th>Change</th>
-      <th>Coins</th>
+      <th class="text-center">Current</th>
+      <th class="text-center">Change</th>
+      <th class="text-center">Cost</th>
       <th></th>
     </tr>
     ${upgradeDOMElements.join('')}

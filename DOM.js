@@ -48,3 +48,11 @@ const DOM = {
     ],
   },
 };
+
+const handleResize = () => {
+  DOM.game.width = DOM.game.clientWidth;
+  DOM.game.height = DOM.game.clientHeight;
+};
+
+window.addEventListener('resize', handleResize);
+handleResize();

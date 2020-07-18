@@ -16,6 +16,8 @@ const game = {
   },
 };
 
+const randomDev = (max) => (Math.random() - 0.5) * 2 * max;
+
 const booleanOsc = (frq, offset = 0) =>
   Math.cos(Date.now() * frq * game.preferences.timeSpeed + offset) > 0;
 
@@ -80,17 +82,16 @@ const handleEnemyKill = (state, enemy) => {
   const bossMultiplier = enemy.isBoss ? 4 : 1;
   const isTripled = Math.random() < get('tripleLootChance');
   const tripler = isTripled ? 3 : 1;
-  state.player.coins += Math.floor(get('lootBonus') * bossMultiplier * tripler);
+  const coins = Math.floor(get('lootBonus') * bossMultiplier * tripler);
+  state.player.coins += coins;
 
-  if (isTripled) {
-    DOM.displayMessage(
-      PLAYER_X - 24,
-      FLOOR_Y - PLAYER_HEIGHT,
-      'Triple!',
-      'orange',
-      20
-    );
-  }
+  DOM.displayMessage(
+    PLAYER_X - 42 + randomDev(10),
+    FLOOR_Y - 90 + randomDev(10),
+    `+${coins}`,
+    'orange',
+    isTripled ? 24 : 16
+  );
 };
 
 const updateArrow = (state) => (arrow) => {
@@ -109,15 +110,15 @@ const updateArrow = (state) => (arrow) => {
     const damage = Math.floor(arrow.damage * critMultiplier);
     enemy.hp -= damage;
     DOM.displayMessage(
-      enemy.x,
-      FLOOR_Y - 64 * (enemy.isBoss ? 2 : 1),
+      enemy.x + randomDev(10),
+      FLOOR_Y - 64 * (enemy.isBoss ? 2 : 1) + randomDev(10),
       damage,
       'black',
       isCrit ? 24 : 16
     );
     const willPierce = !isFrozen && Math.random() < get('pierceChance');
+
     if (willPierce) {
-      DOM.displayMessage(enemy.x, FLOOR_Y - PLAYER_HEIGHT, 'Pierce!', 'red');
       arrow.x = enemy.x + 0.0001;
     } else {
       arrow.hp--;

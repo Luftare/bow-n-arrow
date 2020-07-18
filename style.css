@@ -1,13 +1,19 @@
+* {
+  outline: none;
+}
+
 body {
   background: linear-gradient(rgb(250, 232, 255), rgb(249, 255, 223));
 }
 
 main {
-  margin: 64px auto;
-  width: 500px;
+  margin: 48px auto;
+  width: 100%;
+  max-width: 600px;
 }
 
 #stats {
+  font-size: 26px;
   display: flex;
   justify-content: space-between;
   margin: 8px 0;
@@ -27,12 +33,13 @@ main {
 #game {
   background-image: url('assets/background.jpg');
   background-position: center;
-  background-size: cover;
+  width: 100%;
+  height: 300px;
 }
 
 #game-container {
-  display: inline-block;
   position: relative;
+  overflow: hidden;
 }
 
 #game-elements-container {
@@ -46,9 +53,9 @@ main {
   0% {
     opacity: 1;
   }
-  30% {
+  40% {
     opacity: 0.8;
-    transform: translateY(-25px) scale(1.3, 1.3);
+    transform: translateY(-28px) scale(1.3, 1.3);
   }
   100% {
     opacity: 0;
@@ -63,6 +70,14 @@ main {
     transform: scale(1.2, 1.2);
   }
 }
+@keyframes small-bounce {
+  0%,
+  100% {
+  }
+  40% {
+    transform: scale(1.05, 1.05);
+  }
+}
 
 .bounce-once {
   animation: bounce 200ms;
@@ -75,7 +90,7 @@ main {
 .game-element {
   position: absolute;
   opacity: 0;
-  animation: fly 800ms;
+  animation: fly 1000ms;
 }
 
 #game-over-screen {
@@ -114,6 +129,18 @@ td {
   color: rgb(47, 12, 94);
   font-weight: 500;
   font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 120px;
+}
+
+.button:active {
+  transform: scale(0.9, 0.9);
+}
+
+.button:hover {
+  animation: small-bounce 120ms;
 }
 
 .button--yellow {
@@ -134,4 +161,8 @@ td {
 .button:disabled {
   background: lightgrey;
   color: darkgrey;
+}
+
+.text-center {
+  text-align: center;
 }
