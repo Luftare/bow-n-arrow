@@ -1,6 +1,7 @@
 const DOM = {
   stats: document.getElementById('stats'),
   game: document.getElementById('game'),
+  gameContainer: document.getElementById('game-container'),
   gameOverScreen: document.getElementById('game-over-screen'),
   preferences: document.getElementById('preferences'),
   gameElementsContainer: document.getElementById('game-elements-container'),
@@ -56,4 +57,11 @@ const handleResize = () => {
 };
 
 window.addEventListener('resize', handleResize);
+
+window.addEventListener('scroll', (e) => {
+  const isScrolled = window.scrollY > 80;
+
+  DOM.gameContainer.classList[isScrolled ? 'add' : 'remove']('shrink');
+});
+
 handleResize();

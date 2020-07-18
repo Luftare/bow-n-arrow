@@ -43,6 +43,7 @@ main {
 #game-container {
   position: relative;
   overflow: hidden;
+  transition: transform 150ms;
 }
 
 #game-elements-container {
@@ -211,4 +212,8 @@ label:hover {
 
 .tooltip-target:hover .tooltip {
   display: inline-block;
+}
+
+.shrink {
+  transform: scale(0.5) translate(-50%, -50%);
 }
