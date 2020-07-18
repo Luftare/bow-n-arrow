@@ -16,11 +16,6 @@ main {
 }
 
 #stats {
-  position: absolute;
-  width: 100%;
-  padding: 8px 16px;
-  top: 0;
-  box-sizing: border-box;
   font-size: 26px;
   display: flex;
   justify-content: space-between;
