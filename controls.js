@@ -21,10 +21,18 @@ const renderPreferences = () => {
     )
     .join('');
 
+  DOM.preferences.innerHTML +=
+    '<button class="button" id="pause" style="width: 90px;">Pause</button>';
+
   timeSpeeds.forEach((value) => {
     document
       .getElementById(timeSpeedId(value))
       .addEventListener('change', () => (game.preferences.timeSpeed = value));
+  });
+
+  document.getElementById('pause').addEventListener('click', (e) => {
+    game.state.isPaused = !game.state.isPaused;
+    e.target.innerHTML = game.state.isPaused ? 'Continue' : 'Pause';
   });
 };
 

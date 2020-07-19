@@ -43,7 +43,7 @@ const getCloverBonus = () =>
   game.state.structureOptions.clover.luckBonus *
   game.state.structures.filter(({ type }) => type === 'clover').length;
 
-const indexToStructureCost = (index) => Math.floor(2 ** (index + 7));
+const indexToStructureCost = (index) => Math.floor(2 ** (index + 8));
 
 const waveToWaveGapTicks = (wave) => 100 - wave * 5;
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
@@ -189,10 +189,9 @@ const updateGameOver = () => {
 };
 
 const tick = () => {
-  if (game.state.isGameOver) return;
+  if (game.state.isGameOver || game.state.isPaused) return;
 
   updateWave();
-
   updatePlayer(game.state);
 
   game.state.arrows.forEach(updateArrow(game.state));
@@ -277,6 +276,7 @@ const loop = () => {
 };
 
 const createState = () => ({
+  isPaused: false,
   isGameOver: false,
   waveCounter: 0,
   wave: 0,
