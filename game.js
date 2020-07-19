@@ -43,7 +43,7 @@ const getCloverBonus = () =>
   game.state.structureOptions.clover.luckBonus *
   game.state.structures.filter(({ type }) => type === 'clover').length;
 
-const indexToStructureCost = (index) => Math.floor(2 ** (index + 6));
+const indexToStructureCost = (index) => Math.floor(2 ** (index + 7));
 
 const waveToWaveGapTicks = (wave) => 100 - wave * 5;
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
@@ -299,7 +299,7 @@ const createState = () => ({
   structureOptions: {
     flower: {
       label: 'Coin Flower',
-      waveBonus: 0.03,
+      waveBonus: 0.02,
       description: () =>
         `At the beginning of a wave, each flower generates additional ${(
           game.state.structureOptions.flower.waveBonus * 100
@@ -307,7 +307,7 @@ const createState = () => ({
     },
     clover: {
       label: 'Clover',
-      luckBonus: 0.01,
+      luckBonus: 0.02,
       description: () =>
         `Each clover adds +${(
           game.state.structureOptions.clover.luckBonus * 100
