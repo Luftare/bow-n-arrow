@@ -10,6 +10,9 @@ const DOM = {
   upgrades: {
     container: document.getElementById('upgrades'),
   },
+  structureOptions: {
+    container: document.getElementById('structure-options-container'),
+  },
 
   displayMessage(x, y, message, color, size = 16) {
     const messageElement = document.createElement('span');
@@ -38,6 +41,7 @@ const DOM = {
   images: {
     arrow: document.getElementById('asset-arrow'),
     flower: document.getElementById('asset-flower'),
+    clover: document.getElementById('asset-clover'),
     orcs: [
       document.getElementById('asset-orc-0'),
       document.getElementById('asset-orc-1'),

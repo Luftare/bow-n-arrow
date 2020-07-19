@@ -7,6 +7,7 @@ const ARROW_VELOCITY = 6;
 const PLAYER_X = 80;
 const PLAYER_HEIGHT = 64;
 const PLAYER_WIDTH = 32;
+const STRUCTURE_GAP = 20;
 let FLOOR_Y = DOM.game.clientHeight * 0.78;
 
 const game = {
@@ -26,7 +27,7 @@ const get = (key, levelAdjust = 0) =>
 
 const upgradeValues = {
   lootBonus: (level) => 1 + Math.floor(level ** 2.1),
-  tripleLootChance: (level) => 0 + level * 0.05,
+  tripleLootChance: (level) => 0 + level * 0.03,
   flower: (level) => 0.02 * level,
   damage: (level) => Math.floor(10 + level ** 1.5),
   loadTicks: (level) => 100 - level * 4,
@@ -37,6 +38,12 @@ const upgradeValues = {
   freezeChance: (level) => 0 + level * 0.02,
   freezeDuration: (level) => 20 + level * 10,
 };
+
+const getCloverBonus = () =>
+  game.state.structureOptions.clover.luckBonus *
+  game.state.structures.filter(({ type }) => type === 'clover').length;
+
+const indexToStructureCost = (index) => Math.floor(2 ** (index + 6));
 
 const waveToWaveGapTicks = (wave) => 100 - wave * 5;
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
@@ -104,9 +111,11 @@ const updateArrow = (state) => (arrow) => {
   const enemy = state.enemies.find((e) => e.x >= arrowStartX && e.x < nextX);
 
   if (enemy) {
+    const cloverBonus = getCloverBonus();
     const isFrozen = enemy.freeze > 0;
     const frozenBonus = isFrozen ? 2 : 1;
-    const isCrit = Math.random() < get('critChance') * frozenBonus;
+    const isCrit =
+      Math.random() < get('critChance') * frozenBonus + cloverBonus;
 
     const critMultiplier = isCrit ? get('critMultiplier') : 1;
     const damage = Math.floor(arrow.damage * critMultiplier);
@@ -118,7 +127,8 @@ const updateArrow = (state) => (arrow) => {
       'black',
       isCrit ? 24 : 16
     );
-    const willPierce = !isFrozen && Math.random() < get('pierceChance');
+    const willPierce =
+      !isFrozen && Math.random() < get('pierceChance') + cloverBonus;
 
     if (willPierce) {
       arrow.x = enemy.x + 0.0001;
@@ -130,7 +140,8 @@ const updateArrow = (state) => (arrow) => {
       handleEnemyKill(state, enemy);
     } else if (!isFrozen) {
       const willFreeze =
-        Math.random() < upgradeValues.freezeChance(state.upgrades.freezeChance);
+        Math.random() <
+        upgradeValues.freezeChance(state.upgrades.freezeChance) + cloverBonus;
       if (willFreeze) {
         enemy.freeze = get('freezeDuration');
       }
@@ -145,9 +156,8 @@ const updateEnemy = (state) => (enemy) => {
   if (enemy.freeze > 0) return;
   enemy.x += ENEMY_VELOCITY * game.preferences.timeSpeed;
 
-  state.flowers = state.flowers.filter(({ x }) => {
+  state.structures = state.structures.filter(({ x }) => {
     const willDie = x > enemy.x;
-    // Tell player if a flower died.
     return !willDie;
   });
 };
@@ -227,20 +237,22 @@ const spawnWave = (wave) => {
 
   game.state.enemies = [...game.state.enemies, ...newEnemies];
 
-  const flowerCount = game.state.flowers.length;
+  const flowers = game.state.structures.filter(({ type }) => type === 'flower');
   const flowerCoins = Math.floor(
-    upgradeValues.flower(flowerCount) * game.state.player.coins
+    game.state.structureOptions.flower.waveBonus *
+      flowers.length *
+      game.state.player.coins
   );
   game.state.player.coins += flowerCoins;
 
   if (flowerCoins) {
-    const firstFlower = game.state.flowers[0];
-    const lastFlower = game.state.flowers[game.state.flowers.length - 1];
+    const firstFlower = flowers[0];
+    const lastFlower = flowers[flowers.length - 1];
 
-    const messageCenter = PLAYER_X + (lastFlower.x - firstFlower.x) / 2;
+    const messageCenter = firstFlower.x + (lastFlower.x - firstFlower.x) / 2;
 
     DOM.displayMessage(
-      messageCenter + 4,
+      messageCenter - 16,
       FLOOR_Y - 50 + randomDev(6),
       `+${flowerCoins}`,
       'orange',
@@ -249,10 +261,14 @@ const spawnWave = (wave) => {
   }
 };
 
-const spawnFlower = () => {
-  const index = game.state.upgrades.flower;
-  const FLOWER_GAP = 20;
-  game.state.flowers.push({ x: PLAYER_X + FLOWER_GAP * index + 5 });
+const spawnStructure = (key) => {
+  game.state.player.coins -= indexToStructureCost(game.state.structureIndex);
+  game.state.structureIndex++;
+  const indexX = game.state.structures.length;
+  game.state.structures.push({
+    x: PLAYER_X + STRUCTURE_GAP * indexX + 5,
+    type: key,
+  });
 };
 
 const loop = () => {
@@ -266,11 +282,11 @@ const createState = () => ({
   wave: 0,
   enemies: [],
   arrows: [],
-  flowers: [],
+  structures: [],
+  structureIndex: 0,
   upgrades: {
     lootBonus: 0,
     tripleLootChance: 0,
-    flower: 0,
     damage: 0,
     loadTicks: 0,
     range: 0,
@@ -280,8 +296,26 @@ const createState = () => ({
     freezeChance: 0,
     freezeDuration: 0,
   },
+  structureOptions: {
+    flower: {
+      label: 'Coin Flower',
+      waveBonus: 0.03,
+      description: () =>
+        `At the beginning of a wave, each flower generates additional ${(
+          game.state.structureOptions.flower.waveBonus * 100
+        ).toFixed(0)}% of current coins.`,
+    },
+    clover: {
+      label: 'Clover',
+      luckBonus: 0.01,
+      description: () =>
+        `Each clover adds +${(
+          game.state.structureOptions.clover.luckBonus * 100
+        ).toFixed(0)}% chance to all luck-based effects.`,
+    },
+  },
   player: {
-    coins: 1000,
+    coins: 0,
     range: 200,
     loadCounter: 0,
   },
@@ -291,8 +325,9 @@ const boot = () => {
   handleResize();
   game.state = createState();
   renderUpgrades(game.state);
-  loop();
+  renderStructureOptions();
   renderPreferences();
+  loop();
   document.querySelector('main').style.display = 'block';
 };
 

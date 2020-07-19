@@ -28,6 +28,37 @@ const renderPreferences = () => {
   });
 };
 
+const renderStructureOptions = () => {
+  const optionDOMElements = Object.keys(game.state.structureOptions).map(
+    (key) => {
+      const { label, description } = game.state.structureOptions[key];
+      return `
+        <div class="card">
+          <h5>${label}</h5>
+          <p>${description()}</p>
+          <p class="card-clear">Cost: <b>${indexToStructureCost(
+            game.state.structureIndex
+          )}</b></p>
+          <button id="${key}-structure" class="button">Purchase</button>
+        </div>
+      `;
+    }
+  );
+
+  DOM.structureOptions.container.innerHTML = optionDOMElements.join('');
+
+  Object.keys(game.state.structureOptions).forEach((key) => {
+    DOM.structureOptions[key] = document.getElementById(`${key}-structure`);
+  });
+
+  Object.keys(game.state.structureOptions).forEach((key) => {
+    DOM.structureOptions[key].addEventListener('click', () => {
+      spawnStructure(key);
+      renderStructureOptions();
+    });
+  });
+};
+
 const renderUpgrades = (state) => {
   const labels = {
     lootBonus: 'Coin reward',
@@ -95,10 +126,6 @@ const renderUpgrades = (state) => {
     pierceChance: percentage,
   };
 
-  const upgradeTriggers = {
-    flower: spawnFlower,
-  };
-
   const upgradeDOMElements = [];
 
   for (let upgrade in state.upgrades) {
@@ -147,7 +174,6 @@ const renderUpgrades = (state) => {
       state.player.coins -= upgradeCost(state.upgrades[upgrade]);
       state.upgrades[upgrade]++;
 
-      if (upgradeTriggers[upgrade]) upgradeTriggers[upgrade]();
       renderUpgrades(state);
 
       DOM.highlight(`${upgrade}-value`);
@@ -159,6 +185,10 @@ const updateUpgradeAvailability = (state) => {
   for (let upgrade in state.upgrades) {
     DOM.upgrades[upgrade].disabled =
       state.player.coins < upgradeCost(state.upgrades[upgrade]);
+  }
+  for (let option in state.structureOptions) {
+    DOM.structureOptions[option].disabled =
+      state.player.coins < indexToStructureCost(state.structureIndex);
   }
 };
 

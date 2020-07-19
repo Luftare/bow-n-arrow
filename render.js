@@ -9,13 +9,12 @@ const { renderGame } = (() => {
     );
   };
 
-  const renderFlowers = (ctx, canvas, state) => {
-    state.flowers.forEach(({ x }) => {
-      ctx.fillStyle = 'red';
+  const renderStructures = (ctx, canvas, state) => {
+    state.structures.forEach(({ x, type }) => {
       ctx.drawImage(
-        DOM.images.flower,
-        Math.round(x - DOM.images.flower.width),
-        Math.round(FLOOR_Y - DOM.images.flower.height)
+        DOM.images[type],
+        Math.round(x - DOM.images[type].width),
+        Math.round(FLOOR_Y - DOM.images[type].height)
       );
     });
   };
@@ -105,7 +104,7 @@ const { renderGame } = (() => {
 
     [
       renderRange,
-      renderFlowers,
+      renderStructures,
       renderEnemies,
       renderPlayer,
       renderArrows,

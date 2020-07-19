@@ -3,6 +3,14 @@
   font-family: sans-serif;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 16px 0;
+}
+
 body {
   background: linear-gradient(rgb(250, 232, 255), rgb(249, 255, 223));
   margin: 0;
@@ -12,6 +20,7 @@ body {
 main {
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 100px;
   width: 100%;
   max-width: 600px;
 }
@@ -20,7 +29,9 @@ main {
   font-size: 26px;
   display: flex;
   justify-content: space-between;
-  margin: 8px;
+  padding: 8px 16px;
+  background-color: #222;
+  color: white;
 }
 
 #preferences {
@@ -32,6 +43,33 @@ main {
 #preferences label {
   font-size: 20px;
   flex-grow: 1;
+}
+
+#structure-options-container {
+  margin-bottom: 16px;
+  display: grid;
+  grid-gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.card {
+  background: white;
+  display: inline-flex;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.card .card-clear {
+  margin-top: auto;
+}
+
+.card h5 {
+  margin: 0;
+}
+
+.card p {
+  font-size: 14px;
 }
 
 #game {
@@ -197,6 +235,7 @@ label:hover {
   top: 50%;
   transform: translateY(-50%);
   width: 200px;
+  z-index: 10;
 }
 
 .tooltip::after {
