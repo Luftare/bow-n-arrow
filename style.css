@@ -94,7 +94,8 @@ main {
 .game-element {
   position: absolute;
   opacity: 0;
-  animation: fly 1000ms;
+  animation: fly 1200ms;
+  text-shadow: white 1px 1px 1px 4px;
 }
 
 #game-over-screen {

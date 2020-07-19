@@ -88,7 +88,7 @@ const handleEnemyKill = (state, enemy) => {
   state.player.coins += coins;
 
   DOM.displayMessage(
-    PLAYER_X - 42 + randomDev(10),
+    PLAYER_X - 38 + randomDev(8),
     FLOOR_Y - 90 + randomDev(10),
     `+${coins}`,
     'orange',
@@ -234,15 +234,18 @@ const spawnWave = (wave) => {
   game.state.player.coins += flowerCoins;
 
   if (flowerCoins) {
-    game.state.flowers.forEach(({ x }) => {
-      DOM.displayMessage(
-        x - 4,
-        FLOOR_Y - 20 + randomDev(6),
-        `+${Math.round(flowerCoins / flowerCount)}`,
-        'orange',
-        16
-      );
-    });
+    const firstFlower = game.state.flowers[0];
+    const lastFlower = game.state.flowers[game.state.flowers.length - 1];
+
+    const messageCenter = PLAYER_X + (lastFlower.x - firstFlower.x) / 2;
+
+    DOM.displayMessage(
+      messageCenter + 4,
+      FLOOR_Y - 50 + randomDev(6),
+      `+${flowerCoins}`,
+      'orange',
+      16
+    );
   }
 };
 
@@ -278,7 +281,7 @@ const createState = () => ({
     freezeDuration: 0,
   },
   player: {
-    coins: 0,
+    coins: 1000,
     range: 200,
     loadCounter: 0,
   },
