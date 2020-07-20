@@ -1,5 +1,6 @@
 const DOM = {
   stats: document.getElementById('stats'),
+  waveStats: document.getElementById('wave-stats'),
   sticky: document.getElementById('sticky'),
   game: document.getElementById('game'),
   pauseScreen: document.getElementById('pause-screen'),

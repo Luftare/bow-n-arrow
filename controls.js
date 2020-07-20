@@ -4,6 +4,14 @@ const renderStats = (state) => {
     <span>Wave: <b>${state.wave}</b></span>
   `;
 
+  const isBoss = waveToIsBoss(game.state.wave);
+
+  DOM.waveStats.innerHTML = `
+    <span>${isBoss ? 'Boss' : 'Orcs'}: <b>${humanizeNumber(
+    isBoss ? waveToBossHp(game.state.wave) : waveToEnemyHp(game.state.wave)
+  )}</b> hp</span>  
+  `;
+
   DOM.gameOverText.innerHTML = isGameWon() ? 'YOU WIN!' : 'GAME OVER';
   DOM.gameOverScreen.style.display = state.isGameOver ? 'flex' : 'none';
   DOM.pauseScreen.style.display = state.isPaused ? 'flex' : 'none';
