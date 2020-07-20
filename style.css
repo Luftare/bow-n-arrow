@@ -22,6 +22,7 @@ body {
   top: 0;
   z-index: 9;
   pointer-events: none;
+  transition: transform 150ms;
 }
 
 main {
@@ -291,10 +292,6 @@ label:hover {
 
 .tooltip-target:active .tooltip {
   display: inline-block;
-}
-
-#sticky {
-  transition: transform 150ms;
 }
 
 .shrink {
