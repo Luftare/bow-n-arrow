@@ -188,12 +188,9 @@ const updateGameOver = () => {
     isGameWon() || game.state.enemies.some(({ x }) => x <= PLAYER_X);
 };
 
-const tick = () => {
-  if (game.state.isGameOver || game.state.isPaused) return;
-
+const tickSimulation = () => {
   updateWave();
   updatePlayer(game.state);
-
   game.state.arrows.forEach(updateArrow(game.state));
   game.state.enemies.forEach(updateEnemy(game.state));
 
@@ -203,6 +200,14 @@ const tick = () => {
     .filter(({ x }) => x < 10000);
 
   updateGameOver();
+};
+
+const tick = () => {
+  const isInterrupted = game.state.isGameOver || game.state.isPaused;
+
+  if (!isInterrupted) {
+    tickSimulation();
+  }
 
   render(DOM.game, game.state);
 };
