@@ -122,6 +122,7 @@ const updateArrow = (state) => (arrow) => {
 
     const critMultiplier = isCrit ? get('critMultiplier') : 1;
     const damage = Math.floor(arrow.damage * critMultiplier);
+
     enemy.hp -= damage;
     DOM.displayMessage(
       enemy.x + randomDev(10),
@@ -278,6 +279,20 @@ const createState = () => ({
   arrows: [],
   structures: [],
   structureIndex: 0,
+  visual: {
+    shakeCounter: 0,
+  },
+  actions: {
+    earthquake: {
+      label: 'Earthquake',
+      color: 'red',
+      coinDamage: 0.1,
+      description: () =>
+        `Converts each coin to ${game.state.actions.earthquake.coinDamage.toFixed(
+          1
+        )} damage equally distributed to all enemies.`,
+    },
+  },
   upgrades: {
     lootBonus: 0,
     tripleLootChance: 0,
@@ -319,6 +334,7 @@ const createState = () => ({
 const boot = () => {
   game.state = createState();
   renderUpgrades(game.state);
+  renderActions(game.state);
   renderStructureOptions();
   renderPreferences();
   loop();
@@ -328,4 +344,6 @@ const boot = () => {
 const startNewGame = () => {
   game.state = createState();
   renderUpgrades(game.state);
+  renderStructureOptions();
+  renderActions(game.state);
 };

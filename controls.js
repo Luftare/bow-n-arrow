@@ -45,6 +45,29 @@ const renderPreferences = () => {
   });
 };
 
+const renderActions = (state) => {
+  const actionsKeys = Object.keys(state.actions);
+  DOM.actions.container.innerHTML = actionsKeys
+    .map((key) => {
+      const action = state.actions[key];
+      return `
+        <button id="${key}-action" class="button button--${action.color}">
+          <div style="margin: 0;">${action.label}</div>
+          <p class="sub-text">${action.description()}</p>
+        </button>
+      `;
+    })
+    .join('');
+
+  actionsKeys.forEach((key) => {
+    DOM.actions[key] = document.getElementById(`${key}-action`);
+    DOM.actions[key].addEventListener('click', () => {
+      if (game.state.isPaused || game.state.isGameOver) return;
+      actionTriggers[key]();
+    });
+  });
+};
+
 const renderStructureOptions = () => {
   const optionDOMElements = Object.keys(game.state.structureOptions).map(
     (key) => {

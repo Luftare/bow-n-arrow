@@ -97,8 +97,28 @@ const { renderGame } = (() => {
     });
   };
 
+  const handleShake = (ctx, state) => {
+    if (state.visual.shakeCounter <= 0) {
+      return;
+    }
+
+    const amplitude = 0.4;
+    const frq = 0.1;
+
+    ctx.translate(
+      Math.cos(Date.now() * frq) * amplitude * state.visual.shakeCounter,
+      Math.sin(Date.now() * frq) * amplitude * state.visual.shakeCounter
+    );
+    state.visual.shakeCounter = Math.max(
+      0,
+      state.visual.shakeCounter - game.preferences.timeSpeed
+    );
+  };
+
   const renderGame = (canvas, state) => {
     const ctx = canvas.getContext('2d');
+    ctx.save();
+    handleShake(ctx, state);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -109,6 +129,7 @@ const { renderGame } = (() => {
       renderPlayer,
       renderArrows,
     ].forEach((fn) => fn(ctx, canvas, state));
+    ctx.restore();
   };
   return {
     renderGame,

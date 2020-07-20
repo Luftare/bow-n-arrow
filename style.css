@@ -297,3 +297,8 @@ label:hover {
 .shrink {
   transform: scale(0.5) translate(-50%, -50%);
 }
+
+.sub-text {
+  font-weight: 100;
+  font-size: 12px;
+}

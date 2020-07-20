@@ -9,6 +9,9 @@ const DOM = {
   gameOverText: document.getElementById('game-over-text'),
   preferences: document.getElementById('preferences'),
   gameElementsContainer: document.getElementById('game-elements-container'),
+  actions: {
+    container: document.getElementById('actions'),
+  },
   upgrades: {
     container: document.getElementById('upgrades'),
   },
