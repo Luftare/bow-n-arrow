@@ -130,14 +130,6 @@ const updateArrow = (state) => (arrow) => {
       'black',
       isCrit ? 24 : 16
     );
-    const willPierce =
-      !isFrozen && Math.random() < get('pierceChance') + cloverBonus;
-
-    if (willPierce) {
-      arrow.x = enemy.x + 0.0001;
-    } else {
-      arrow.hp--;
-    }
 
     if (enemy.hp <= 0) {
       handleEnemyKill(state, enemy);
@@ -148,6 +140,15 @@ const updateArrow = (state) => (arrow) => {
       if (willFreeze) {
         enemy.freeze = get('freezeDuration');
       }
+    }
+
+    const willPierce =
+      !isFrozen && Math.random() < get('pierceChance') + cloverBonus;
+
+    if (willPierce) {
+      arrow.x = enemy.x + 0.0001;
+    } else {
+      arrow.hp--;
     }
   }
 
@@ -250,28 +251,7 @@ const spawnWave = (wave) => {
 
   game.state.enemies = [...game.state.enemies, ...newEnemies];
 
-  const flowers = game.state.structures.filter(({ type }) => type === 'flower');
-  const flowerCoins = Math.floor(
-    game.state.structureOptions.flower.waveBonus *
-      flowers.length *
-      game.state.player.coins
-  );
-  game.state.player.coins += flowerCoins;
-
-  if (flowerCoins) {
-    const firstFlower = flowers[0];
-    const lastFlower = flowers[flowers.length - 1];
-
-    const messageCenter = firstFlower.x + (lastFlower.x - firstFlower.x) / 2;
-
-    DOM.displayMessage(
-      messageCenter - 16,
-      FLOOR_Y - 50 + randomDev(6),
-      `+${humanizeNumber(flowerCoins)}`,
-      'orange',
-      16
-    );
-  }
+  handleCoinFlowers();
 };
 
 const spawnStructure = (key) => {

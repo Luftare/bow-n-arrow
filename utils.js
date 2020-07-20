@@ -1,5 +1,7 @@
 const humanizePostFixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
 
+const isInt = (num) => Math.floor(num) === num;
+
 const humanizeNumber = (num) => {
   const rounded = Math.floor(num);
   const digits = (rounded + '').length;
@@ -7,7 +9,11 @@ const humanizeNumber = (num) => {
   const postFix = humanizePostFixes[postFixIndex];
   const baseNum = num / 10 ** (postFixIndex * 3);
   return `${
-    postFixIndex > 0 ? baseNum.toFixed(2 - ((digits - 1) % 3)) : baseNum
+    postFixIndex > 0
+      ? baseNum.toFixed(2 - ((digits - 1) % 3))
+      : isInt(baseNum)
+      ? baseNum
+      : baseNum.toFixed(1)
   }${postFix}`;
 };
 

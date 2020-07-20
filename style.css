@@ -17,6 +17,13 @@ body {
   touch-action: manipulation;
 }
 
+#sticky {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
 main {
   margin-left: auto;
   margin-right: auto;

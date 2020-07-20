@@ -7,13 +7,16 @@
     />
     <title>Bow n Arrow</title>
     <link rel="stylesheet" href="style.css" />
+    <script defer src="utils.js"></script>
+    <script defer src="structures.js"></script>
+    <script defer src="DOM.js"></script>
+    <script defer src="render.js"></script>
+    <script defer src="game.js"></script>
+    <script defer src="controls.js"></script>
   </head>
   <body>
     <main style="display: none;">
-      <div
-        style="position: sticky; top: 0; z-index: 9; pointer-events: none;"
-        id="sticky"
-      >
+      <div id="sticky">
         <div id="stats" class="bar"></div>
         <div id="game-container">
           <canvas id="game"></canvas>
@@ -51,10 +54,5 @@
         <img src="assets/clover.png" id="asset-clover" />
       </div>
     </main>
-    <script defer src="utils.js"></script>
-    <script defer src="DOM.js"></script>
-    <script defer src="render.js"></script>
-    <script defer src="game.js"></script>
-    <script defer src="controls.js"></script>
   </body>
 </html>
