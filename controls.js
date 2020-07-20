@@ -1,6 +1,6 @@
 const renderStats = (state) => {
   DOM.stats.innerHTML = `
-    <span>Coins: <b>${state.player.coins}</b></span>
+    <span>Coins: <b>${humanizeNumber(state.player.coins)}</b></span>
     <span>Wave: <b>${state.wave}</b></span>
   `;
 
@@ -44,8 +44,8 @@ const renderStructureOptions = () => {
         <div class="card">
           <h5>${label}</h5>
           <p>${description()}</p>
-          <p class="card-clear">Cost: <b>${indexToStructureCost(
-            game.state.structureIndex
+          <p class="card-clear">Cost: <b>${humanizeNumber(
+            indexToStructureCost(game.state.structureIndex)
           )}</b></p>
           <button id="${key}-structure" class="button">Purchase</button>
         </div>
@@ -121,10 +121,10 @@ const renderUpgrades = (state) => {
   const seconds = (value) => (value / 60).toFixed(2) + 's';
 
   const formats = {
-    lootBonus: (value) => value,
+    lootBonus: humanizeNumber,
     tripleLootChance: percentage,
     flower: percentage,
-    damage: (value) => value,
+    damage: humanizeNumber,
     loadTicks: seconds,
     range: (value) => (0.06 * value).toFixed(1) + 'm',
     critChance: percentage,
@@ -151,7 +151,7 @@ const renderUpgrades = (state) => {
       <td class="text-center">${
         (change + '').includes('-') ? '' : '+'
       }${change}</td>
-      <td class="text-center">${upgradeCost(level)}</td>
+      <td class="text-center">${humanizeNumber(upgradeCost(level))}</td>
       <td style="text-align: right;">
         <button id="${upgrade}" class="button button--${
       colors[upgrade]

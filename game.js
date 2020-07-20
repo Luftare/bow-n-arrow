@@ -93,9 +93,9 @@ const handleEnemyKill = (state, enemy) => {
   state.player.coins += coins;
 
   DOM.displayMessage(
-    PLAYER_X - 38 + randomDev(8),
-    FLOOR_Y - 90 + randomDev(10),
-    `+${coins}`,
+    PLAYER_X - 42 + randomDev(20),
+    FLOOR_Y - 100 + randomDev(16),
+    `+${humanizeNumber(coins)}`,
     'orange',
     isTripled ? 24 : 16
   );
@@ -121,7 +121,7 @@ const updateArrow = (state) => (arrow) => {
     DOM.displayMessage(
       enemy.x + randomDev(10),
       FLOOR_Y - 64 * (enemy.isBoss ? 2 : 1) + randomDev(10),
-      damage,
+      humanizeNumber(damage),
       'black',
       isCrit ? 24 : 16
     );
@@ -258,7 +258,7 @@ const spawnWave = (wave) => {
     DOM.displayMessage(
       messageCenter - 16,
       FLOOR_Y - 50 + randomDev(6),
-      `+${flowerCoins}`,
+      `+${humanizeNumber(flowerCoins)}`,
       'orange',
       16
     );
