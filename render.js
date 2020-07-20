@@ -27,7 +27,7 @@ const { renderGame } = (() => {
 
         ctx.drawImage(
           images[
-            booleanOsc(isBoss ? 0.013 : 0.018, animationOffset) || freeze > 0
+            booleanOsc(isBoss ? 0.011 : 0.015, animationOffset) || freeze > 0
               ? 0
               : 1
           ],

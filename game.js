@@ -20,6 +20,8 @@ const game = {
 const randomDev = (max) => (Math.random() - 0.5) * 2 * max;
 
 const booleanOsc = (frq, offset = 0) =>
+  game.state.isPaused ||
+  game.state.isGameOver ||
   Math.cos(Date.now() * frq * game.preferences.timeSpeed + offset) > 0;
 
 const get = (key, levelAdjust = 0) =>
@@ -30,13 +32,14 @@ const upgradeValues = {
   tripleLootChance: (level) => 0 + level * 0.03,
   flower: (level) => 0.02 * level,
   damage: (level) => Math.floor(10 + level ** 1.5),
-  loadTicks: (level) => 100 - level * 4,
+  loadTicks: (level) => 60 * (Math.PI * 0.5 - Math.atan(level / 20)),
   range: (level) => 250 + level * 4,
   critChance: (level) => 0.04 + level * 0.02,
   critMultiplier: (level) => 1.5 + level * 0.15,
   pierceChance: (level) => 0.0 + level * 0.02,
   freezeChance: (level) => 0 + level * 0.02,
   freezeDuration: (level) => 20 + level * 10,
+  freezeDamage: (level) => level * 0.1,
 };
 
 const getCloverBonus = () =>
@@ -106,7 +109,9 @@ const updateArrow = (state) => (arrow) => {
   const enemyMovement = ENEMY_VELOCITY * game.preferences.timeSpeed;
   const arrowStartX = arrow.x + enemyMovement;
 
-  const enemy = state.enemies.find((e) => e.x >= arrowStartX && e.x < nextX);
+  const enemy = state.enemies
+    .filter((e) => e.hp > 0)
+    .find((e) => e.x >= arrowStartX && e.x < nextX);
 
   if (enemy) {
     const cloverBonus = getCloverBonus();
@@ -151,7 +156,11 @@ const updateArrow = (state) => (arrow) => {
 
 const updateEnemy = (state) => (enemy) => {
   enemy.freeze = Math.max(0, enemy.freeze - game.preferences.timeSpeed);
-  if (enemy.freeze > 0) return;
+  if (enemy.freeze > 0) {
+    enemy.hp -= get('freezeDamage') * game.preferences.timeSpeed;
+
+    return;
+  }
   enemy.x += ENEMY_VELOCITY * game.preferences.timeSpeed;
 
   state.structures = state.structures.filter(({ x }) => {
@@ -205,9 +214,9 @@ const tick = () => {
 
   if (!isInterrupted) {
     tickSimulation();
-    render(DOM.game, game.state);
   }
 
+  render(DOM.game, game.state);
   renderStats(game.state);
   updateUpgradeAvailability(game.state);
 };
@@ -276,8 +285,8 @@ const spawnStructure = (key) => {
 };
 
 const loop = () => {
-  requestAnimationFrame(loop);
   tick(game.state);
+  requestAnimationFrame(loop);
 };
 
 const createState = () => ({
@@ -300,6 +309,7 @@ const createState = () => ({
     pierceChance: 0,
     freezeChance: 0,
     freezeDuration: 0,
+    freezeDamage: 0,
   },
   structureOptions: {
     flower: {
@@ -327,7 +337,6 @@ const createState = () => ({
 });
 
 const boot = () => {
-  handleResize();
   game.state = createState();
   renderUpgrades(game.state);
   renderStructureOptions();

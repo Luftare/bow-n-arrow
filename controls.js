@@ -6,6 +6,7 @@ const renderStats = (state) => {
 
   DOM.gameOverText.innerHTML = isGameWon() ? 'YOU WIN!' : 'GAME OVER';
   DOM.gameOverScreen.style.display = state.isGameOver ? 'flex' : 'none';
+  DOM.pauseScreen.style.display = state.isPaused ? 'flex' : 'none';
 };
 
 const renderPreferences = () => {
@@ -80,6 +81,7 @@ const renderUpgrades = (state) => {
     pierceChance: 'Pierce Chance',
     freezeChance: 'Freeze Chance',
     freezeDuration: 'Freeze Duration',
+    freezeDamage: 'Freeze Damage / s',
   };
 
   const colors = {
@@ -94,14 +96,12 @@ const renderUpgrades = (state) => {
     pierceChance: 'red',
     freezeChance: 'blue',
     freezeDuration: 'blue',
+    freezeDamage: 'blue',
   };
 
   const descriptions = {
     lootBonus: 'Coin reward for killing an orc',
     tripleLootChance: 'Chance of getting a triple reward',
-    flower: `At the beginning of a wave, each flower generates additional ${(
-      upgradeValues.flower(1) * 100
-    ).toFixed(0)}% of current coins`,
     damage: 'Arrow base damage',
     range: 'Range of arrow',
     loadTicks: 'Time between shooting arrows',
@@ -114,6 +114,7 @@ const renderUpgrades = (state) => {
       'Chance of freezing a target making it unable to move while frozen. Frozen targets are 2x likely to receive a critical hit.',
     freezeDuration:
       'Duration of the freeze effect. Frozen targets cannot be pierced.',
+    freezeDamage: `Damage per second caused by freeze effect.`,
   };
 
   const percentage = (value) => (value * 100).toFixed(1) + '%';
@@ -129,9 +130,10 @@ const renderUpgrades = (state) => {
     range: (value) => (0.06 * value).toFixed(1) + 'm',
     critChance: percentage,
     critMultiplier: decimal,
+    pierceChance: percentage,
     freezeChance: percentage,
     freezeDuration: seconds,
-    pierceChance: percentage,
+    freezeDamage: (value) => (value * 60).toFixed(0),
   };
 
   const upgradeDOMElements = [];
@@ -199,5 +201,3 @@ const updateUpgradeAvailability = (state) => {
       state.player.coins < indexToStructureCost(state.structureIndex);
   }
 };
-
-boot();

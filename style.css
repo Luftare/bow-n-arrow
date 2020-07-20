@@ -139,6 +139,22 @@ main {
   text-shadow: white 1px 1px 1px 4px;
 }
 
+#pause-screen {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 32px;
+  font-weight: bold;
+}
+
 #game-over-screen {
   display: none;
   position: absolute;
@@ -146,7 +162,6 @@ main {
   right: 0;
   left: 0;
   bottom: 0;
-  /* background-color: rgba(0, 0, 0, 0.7); */
   background: rgba(0, 0, 0, 0.7);
   background: radial-gradient(
     ellipse at center,

@@ -2,6 +2,7 @@ const DOM = {
   stats: document.getElementById('stats'),
   sticky: document.getElementById('sticky'),
   game: document.getElementById('game'),
+  pauseScreen: document.getElementById('pause-screen'),
   gameContainer: document.getElementById('game-container'),
   gameOverScreen: document.getElementById('game-over-screen'),
   gameOverText: document.getElementById('game-over-text'),
@@ -66,6 +67,7 @@ window.addEventListener('resize', handleResize);
 
 window.addEventListener('load', () => {
   boot();
+  setTimeout(handleResize, 0);
 });
 
 window.addEventListener('scroll', (e) => {
