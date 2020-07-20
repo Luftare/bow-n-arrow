@@ -40,6 +40,7 @@ const upgradeValues = {
   freezeChance: (level) => 0 + level * 0.02,
   freezeDuration: (level) => 20 + level * 10,
   freezeDamage: (level) => level * 0.1,
+  earthquakeCoinDamage: (level) => 0.1 + level * 0.05,
 };
 
 const getCloverBonus = () =>
@@ -286,10 +287,9 @@ const createState = () => ({
     earthquake: {
       label: 'Earthquake',
       color: 'red',
-      coinDamage: 0.1,
       description: () =>
-        `Converts each coin to ${game.state.actions.earthquake.coinDamage.toFixed(
-          1
+        `Converts each coin to ${get('earthquakeCoinDamage').toFixed(
+          2
         )} damage equally distributed to all enemies.`,
     },
   },
@@ -305,6 +305,7 @@ const createState = () => ({
     freezeChance: 0,
     freezeDuration: 0,
     freezeDamage: 0,
+    earthquakeCoinDamage: 0,
   },
   structureOptions: {
     flower: {

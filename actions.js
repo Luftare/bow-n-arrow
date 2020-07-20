@@ -8,7 +8,7 @@ const actionTriggers = {
 
     if (enemyCount === 0) return;
 
-    const totalDamage = coins * game.state.actions.earthquake.coinDamage;
+    const totalDamage = coins * get('earthquakeCoinDamage');
     const damagePerEnemy = Math.round(totalDamage / enemyCount);
 
     game.state.enemies.forEach((enemy) => {

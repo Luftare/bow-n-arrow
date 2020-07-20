@@ -113,6 +113,7 @@ const renderUpgrades = (state) => {
     freezeChance: 'Freeze Chance',
     freezeDuration: 'Freeze Duration',
     freezeDamage: 'Freeze Damage / s',
+    earthquakeCoinDamage: 'Earthquake conversion',
   };
 
   const colors = {
@@ -128,6 +129,7 @@ const renderUpgrades = (state) => {
     freezeChance: 'blue',
     freezeDuration: 'blue',
     freezeDamage: 'blue',
+    earthquakeCoinDamage: '',
   };
 
   const descriptions = {
@@ -146,6 +148,8 @@ const renderUpgrades = (state) => {
     freezeDuration:
       'Duration of the freeze effect. Frozen targets cannot be pierced.',
     freezeDamage: `Damage per second caused by freeze effect.`,
+    earthquakeCoinDamage:
+      'Ratio of how coins are transformed to earthquake damage.',
   };
 
   const percentage = (value) => (value * 100).toFixed(1) + '%';
@@ -165,6 +169,13 @@ const renderUpgrades = (state) => {
     freezeChance: percentage,
     freezeDuration: seconds,
     freezeDamage: (value) => (value * 60).toFixed(0),
+    earthquakeCoinDamage: percentage,
+  };
+
+  const upgradeTriggers = {
+    earthquakeCoinDamage() {
+      renderActions(game.state);
+    },
   };
 
   const upgradeDOMElements = [];
@@ -214,6 +225,8 @@ const renderUpgrades = (state) => {
       if (game.state.isGameOver) return;
       state.player.coins -= upgradeCost(state.upgrades[upgrade]);
       state.upgrades[upgrade]++;
+
+      if (upgradeTriggers[upgrade]) upgradeTriggers[upgrade]();
 
       renderUpgrades(state);
 
