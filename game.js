@@ -64,8 +64,6 @@ const isAlive = ({ hp }) => hp > 0;
 const render = (canvas, state) => {
   FLOOR_Y = DOM.game.clientHeight * 0.78;
   renderGame(canvas, state);
-  renderStats(state);
-  updateUpgradeAvailability(state);
 };
 
 const updatePlayer = (state) => {
@@ -207,9 +205,11 @@ const tick = () => {
 
   if (!isInterrupted) {
     tickSimulation();
+    render(DOM.game, game.state);
   }
 
-  render(DOM.game, game.state);
+  renderStats(game.state);
+  updateUpgradeAvailability(game.state);
 };
 
 const enemyFactory = (state, index) => ({
