@@ -167,6 +167,15 @@ const updateGameOver = () => {
     isGameWon() || game.state.enemies.some(({ x }) => x <= PLAYER_X);
 };
 
+const updateCooldowns = (state) => {
+  Object.keys(state.actions).forEach((key) => {
+    state.actions[key].cooldownCounter = Math.max(
+      0,
+      state.actions[key].cooldownCounter - game.preferences.timeSpeed
+    );
+  });
+};
+
 const tickSimulation = () => {
   updateWave();
   updatePlayer(game.state);
@@ -178,7 +187,7 @@ const tickSimulation = () => {
     .filter(isAlive)
     .filter(({ x }) => x < 10000);
 
-  updateActions(game.state);
+  updateCooldowns(game.state);
   updateGameOver();
 };
 
@@ -192,6 +201,7 @@ const tick = () => {
   render(DOM.game, game.state);
   renderStats(game.state);
   updateButtons(game.state);
+  updateActionElements(game.state);
 };
 
 const enemyFactory = (state, index) => ({

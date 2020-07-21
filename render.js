@@ -54,7 +54,8 @@ const { renderGame } = (() => {
           -5 * sizeMultiplier
         );
         ctx.fillStyle = 'lightgreen';
-        const hpWidth = (PLAYER_WIDTH * sizeMultiplier * hp) / maxHp;
+        const hpWidth =
+          (PLAYER_WIDTH * sizeMultiplier * Math.max(0, hp)) / maxHp;
         ctx.fillRect(
           x,
           FLOOR_Y - PLAYER_HEIGHT * sizeMultiplier - 3,

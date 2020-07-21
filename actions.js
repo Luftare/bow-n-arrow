@@ -5,7 +5,12 @@ const actionCooldowns = {
 const actionCosts = {
   earthquake: (game) =>
     Math.ceil(game.state.player.coins * (1 + get('actionDiscount'))),
-  blizzard: (game) => Math.ceil(10 * (1 + get('actionDiscount'))),
+  blizzard: (game) =>
+    Math.ceil(
+      (game.state.upgrades.freezeDuration + game.state.upgrades.freezeDamage) **
+        2 *
+        (1 + get('actionDiscount'))
+    ),
 };
 
 const actionTriggers = {
@@ -43,12 +48,8 @@ const actionTriggers = {
   },
 };
 
-const updateActions = (state) => {
+const updateActionElements = (state) => {
   Object.keys(state.actions).forEach((key) => {
-    state.actions[key].cooldownCounter = Math.max(
-      0,
-      state.actions[key].cooldownCounter - game.preferences.timeSpeed
-    );
     DOM.actionCooldowns[key].innerHTML = Math.ceil(
       state.actions[key].cooldownCounter / 60
     );
@@ -88,7 +89,7 @@ const renderActions = (state) => {
         <div class="card">
           <h5>${label}</h5>
           <p>${description()}</p>
-          <p class="card-clear">Cost: <b><span id="${key}-action-cost">${123}</span></b></p>
+          <p class="card-clear">Cost: <b><span id="${key}-action-cost"></span></b></p>
           <button id="${key}-action" class="relative button button--${color}">Trigger
             <div id="${key}-action-cooldown" class="cooldown"></div>
           </button>
@@ -105,7 +106,8 @@ const renderActions = (state) => {
     DOM.actionCosts[key] = document.getElementById(`${key}-action-cost`);
     DOM.actions[key].addEventListener('click', () => {
       if (game.state.isGameOver) return;
-      state.actions[key].cooldownCounter = state.actions[key].cooldown;
+      state.actions[key].cooldownCounter =
+        state.actions[key].cooldown * (1 + get('actionCooldown'));
       actionTriggers[key]();
     });
   });

@@ -18,6 +18,7 @@ const upgradeValues = {
   freezeDamage: (level) => level * 0.1,
   earthquakeCoinDamage: (level) => 0.1 + level * 0.05,
   actionDiscount: (level) => 0 - level * 0.05,
+  actionCooldown: (level) => -0 - level * 0.05,
 };
 
 const renderUpgrades = (state) => {
@@ -36,6 +37,7 @@ const renderUpgrades = (state) => {
     freezeDamage: 'Freeze Damage / s',
     earthquakeCoinDamage: 'Earthquake conversion',
     actionDiscount: 'Action Discount',
+    actionCooldown: 'Action Cooldown',
   };
 
   const colors = {
@@ -53,6 +55,7 @@ const renderUpgrades = (state) => {
     freezeDamage: 'blue',
     earthquakeCoinDamage: '',
     actionDiscount: '',
+    actionCooldown: '',
   };
 
   const descriptions = {
@@ -74,6 +77,7 @@ const renderUpgrades = (state) => {
     earthquakeCoinDamage:
       'Ratio of how coins are transformed to earthquake damage.',
     actionDiscount: 'Action trigger cost discount.',
+    actionCooldown: 'Action cooldown reduction.',
   };
 
   const formats = {
@@ -90,7 +94,8 @@ const renderUpgrades = (state) => {
     freezeDuration: toSeconds,
     freezeDamage: (value) => (value * 60).toFixed(0),
     earthquakeCoinDamage: toPercentage,
-    actionDiscount: toPercentage,
+    actionDiscount: (value) => (value === 0 ? '-0%' : toPercentage(value)),
+    actionCooldown: (value) => (value === 0 ? '-0%' : toPercentage(value)),
   };
 
   const upgradeTriggers = {
