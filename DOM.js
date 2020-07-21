@@ -12,6 +12,8 @@ const DOM = {
   actions: {
     container: document.getElementById('actions'),
   },
+  actionCooldowns: {},
+  actionCosts: {},
   upgrades: {
     container: document.getElementById('upgrades'),
   },

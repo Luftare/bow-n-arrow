@@ -17,38 +17,7 @@ const game = {
   },
 };
 
-const randomDev = (max) => (Math.random() - 0.5) * 2 * max;
-
-const booleanOsc = (frq, offset = 0) =>
-  game.state.isPaused ||
-  game.state.isGameOver ||
-  Math.cos(Date.now() * frq * game.preferences.timeSpeed + offset) > 0;
-
-const get = (key, levelAdjust = 0) =>
-  upgradeValues[key](game.state.upgrades[key] + levelAdjust);
-
-const upgradeValues = {
-  lootBonus: (level) => 1 + Math.floor(level ** 2.1),
-  tripleLootChance: (level) => 0 + level * 0.03,
-  flower: (level) => 0.02 * level,
-  damage: (level) => Math.floor(10 + level ** 1.5),
-  loadTicks: (level) => 60 * (Math.PI * 0.5 - Math.atan(level / 20)),
-  range: (level) => 250 + level * 4,
-  critChance: (level) => 0.04 + level * 0.02,
-  critMultiplier: (level) => 1.5 + level * 0.15,
-  pierceChance: (level) => 0.0 + level * 0.02,
-  freezeChance: (level) => 0 + level * 0.02,
-  freezeDuration: (level) => 20 + level * 10,
-  freezeDamage: (level) => level * 0.1,
-  earthquakeCoinDamage: (level) => 0.1 + level * 0.05,
-};
-
-const getCloverBonus = () =>
-  game.state.structureOptions.clover.luckBonus *
-  game.state.structures.filter(({ type }) => type === 'clover').length;
-
 const indexToStructureCost = (index) => Math.floor(2 ** (index + 8));
-
 const waveToWaveGapTicks = (wave) => 100 - wave * 5;
 const waveToEnemyCount = (wave) => Math.floor(1 + wave * 0.1);
 const waveToIsBoss = (wave) => wave % 4 === 0;
@@ -61,7 +30,6 @@ const waveToTickCount = (wave) => {
   const lastEnemyDistanceToPlayer = lastEnemyX - PLAYER_X;
   return lastEnemyDistanceToPlayer / Math.abs(ENEMY_VELOCITY);
 };
-const upgradeCost = (currentLevel) => Math.floor(2 ** currentLevel);
 
 const isAlive = ({ hp }) => hp > 0;
 
@@ -99,7 +67,7 @@ const handleEnemyKill = (state, enemy) => {
   DOM.displayMessage(
     PLAYER_X - 42 + randomDev(20),
     FLOOR_Y - 100 + randomDev(16),
-    `+${humanizeNumber(coins)}`,
+    `+${toPostfix(coins)}`,
     'orange',
     isTripled ? 24 : 16
   );
@@ -128,7 +96,7 @@ const updateArrow = (state) => (arrow) => {
     DOM.displayMessage(
       enemy.x + randomDev(10),
       FLOOR_Y - 64 * (enemy.isBoss ? 2 : 1) + randomDev(10),
-      humanizeNumber(damage),
+      toPostfix(damage),
       'black',
       isCrit ? 24 : 16
     );
@@ -172,11 +140,12 @@ const updateEnemy = (state) => (enemy) => {
   });
 };
 
-const shoot = () => {
+const shoot = (overrides = {}) => {
   game.state.arrows.push({
     x: PLAYER_X,
     hp: 1,
     damage: get('damage'),
+    ...overrides,
   });
 };
 
@@ -209,6 +178,7 @@ const tickSimulation = () => {
     .filter(isAlive)
     .filter(({ x }) => x < 10000);
 
+  updateActions(game.state);
   updateGameOver();
 };
 
@@ -221,7 +191,7 @@ const tick = () => {
 
   render(DOM.game, game.state);
   renderStats(game.state);
-  updateUpgradeAvailability(game.state);
+  updateButtons(game.state);
 };
 
 const enemyFactory = (state, index) => ({
@@ -270,67 +240,6 @@ const loop = () => {
   tick(game.state);
   requestAnimationFrame(loop);
 };
-
-const createState = () => ({
-  isPaused: false,
-  isGameOver: false,
-  waveCounter: 0,
-  wave: 0,
-  enemies: [],
-  arrows: [],
-  structures: [],
-  structureIndex: 0,
-  visual: {
-    shakeCounter: 0,
-  },
-  actions: {
-    earthquake: {
-      label: 'Earthquake',
-      color: 'red',
-      description: () =>
-        `Converts each coin to ${get('earthquakeCoinDamage').toFixed(
-          2
-        )} damage equally distributed to all enemies.`,
-    },
-  },
-  upgrades: {
-    lootBonus: 0,
-    tripleLootChance: 0,
-    damage: 0,
-    loadTicks: 0,
-    range: 0,
-    critChance: 0,
-    critMultiplier: 0,
-    pierceChance: 0,
-    freezeChance: 0,
-    freezeDuration: 0,
-    freezeDamage: 0,
-    earthquakeCoinDamage: 0,
-  },
-  structureOptions: {
-    flower: {
-      label: 'Coin Flower',
-      waveBonus: 0.02,
-      description: () =>
-        `At the beginning of a wave, each flower generates additional ${(
-          game.state.structureOptions.flower.waveBonus * 100
-        ).toFixed(0)}% of current coins.`,
-    },
-    clover: {
-      label: 'Clover',
-      luckBonus: 0.02,
-      description: () =>
-        `Each clover adds +${(
-          game.state.structureOptions.clover.luckBonus * 100
-        ).toFixed(0)}% chance to all luck-based effects.`,
-    },
-  },
-  player: {
-    coins: 0,
-    range: 200,
-    loadCounter: 0,
-  },
-});
 
 const boot = () => {
   game.state = createState();
