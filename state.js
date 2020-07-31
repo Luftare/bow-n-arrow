@@ -12,11 +12,11 @@ const createState = () => ({
   },
   actions: {
     earthquake: {
-      cooldown: 60 * 15,
+      cooldown: 60 * 60,
       cooldownCounter: 0,
     },
     blizzard: {
-      cooldown: 60 * 30,
+      cooldown: 60 * 120,
       cooldownCounter: 0,
     },
   },
